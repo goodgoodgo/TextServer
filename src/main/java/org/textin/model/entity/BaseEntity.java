@@ -1,7 +1,6 @@
 package org.textin.model.entity;
 
 import lombok.Data;
-
 import java.util.Date;
 
 /**
@@ -13,7 +12,6 @@ import java.util.Date;
 @Data
 public abstract class BaseEntity {
     private Long id;
-
     /**
      * 创建时间
      */
@@ -27,5 +25,5 @@ public abstract class BaseEntity {
     /**
      * 是否删除
      */
-    private Integer is_delete;
+    private Integer isDelete;
 }
