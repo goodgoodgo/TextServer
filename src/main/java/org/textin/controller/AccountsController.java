@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.textin.service.AccountService;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 
 /**
@@ -18,7 +19,7 @@ import java.io.IOException;
 @RequestMapping("/keepAccounts")
 public class AccountsController {
 
-    @Autowired
+    @Resource
     private AccountService accountService;
 
     @PostMapping("/image")

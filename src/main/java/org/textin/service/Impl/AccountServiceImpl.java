@@ -3,6 +3,7 @@ package org.textin.service.Impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.textin.model.result.ResultModel;
 import org.textin.service.AccountService;
 import org.textin.util.JsonMsgUtil;
@@ -23,7 +24,7 @@ import java.util.List;
  * @create: 2022-12-23 18:44
  */
 
-@Component
+@Service
 public class AccountServiceImpl implements AccountService {
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

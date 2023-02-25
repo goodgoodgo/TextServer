@@ -1,4 +1,5 @@
-import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * @program: TextServer
@@ -8,7 +9,9 @@ import java.math.BigDecimal;
  */
 public class Test {
     public static void main(String[] args) {
-        BigDecimal bigDecimal=new BigDecimal(10.0);
-        System.out.println(bigDecimal.add(new BigDecimal(10.0)));
+        java.util.Date date = new Date();
+        Timestamp t = new Timestamp(date.getTime());
+
+        System.out.println(t);
     }
 }

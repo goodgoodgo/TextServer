@@ -42,11 +42,11 @@ public class Income extends BaseEntity{
     /**
      * 创建者id
      */
-    private Integer creatorId;
+    private Long creatorId;
 
     /**
      * 归属账本id
      */
-    private Integer ledgerId;
+    private Long ledgerId;
 
 }

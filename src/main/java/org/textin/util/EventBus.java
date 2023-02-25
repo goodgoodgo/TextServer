@@ -56,6 +56,23 @@ public class EventBus {
         executorService.shutdown();
     }
 
+    /**
+     *  触发事件，默认异步执行
+     * @param eventEn
+     * @param message
+     */
+    public static void emit(final MsgType eventEn, final Object message) {
+        processEmitEvent(eventEn, message, true);
+    }
+
+    /**
+     * 同步触发事件
+     * @param eventEn
+     * @param message
+     */
+    public static void emitSync(final MsgType eventEn, final Object message) {
+        processEmitEvent(eventEn, message, false);
+    }
 
     /**
      * 将某个事件发布给所有注册的事件处理器,发布并处理事件

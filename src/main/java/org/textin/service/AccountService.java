@@ -5,7 +5,7 @@ import org.textin.model.result.ResultModel;
 
 import java.util.HashMap;
 
-@Service
+
 public interface AccountService {
 
 

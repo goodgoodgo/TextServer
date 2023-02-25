@@ -1,5 +1,6 @@
 package org.textin.dal.dao;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.textin.dal.dataobject.IncomeDO;
 
 /**

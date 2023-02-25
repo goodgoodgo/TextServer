@@ -17,7 +17,7 @@
         <result column="ledgerId" property="ledgerId"/>
     </resultMap>
     <sql id="allColumn">id, is_delete, create_at, update_at,amount,category,subcategory,comment,creatorId,ledgerId</sql>
-    <sql id="tableName">users</sql>
+    <sql id="tableName">income</sql>
 
     <sql id="where_clause_do" >
         <trim prefix="where" prefixOverrides="and|or" >
@@ -33,17 +33,17 @@
 
     <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="org.textin.dal.dataobject.IncomeDO">
         insert into <include refid="tableName"/>
-            (create_at,amount,category,subcategory,comment,creatorId,ledgerId)
+            (create_at,amount,creator_id,ledger_id,category,subcategory,comment)
         values
-        {
-        #{create_at},
+        (
+        #{createAt},
         #{amount},
+        #{creatorId},
+        #{ledgerId},
         #{category},
         #{subcategory},
-        #{comment},
-        #{creatorId},
-        #{ledgerId}
-        }
+        #{comment}
+        )
     </insert>
     <update id="update"></update>
 </mapper>

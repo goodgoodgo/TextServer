@@ -4,6 +4,7 @@ import lombok.Data;
 import org.textin.model.enums.IsDeletedEn;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
