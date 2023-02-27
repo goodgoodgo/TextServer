@@ -27,4 +27,6 @@ public class Ledger extends BaseEntity{
     private BigDecimal income;
 
     private Long userId;
+
+    private BigDecimal budget;
 }

@@ -1,6 +1,7 @@
 package org.textin.model.entity;
 
 import lombok.Data;
+import org.textin.model.enums.IsDeletedEn;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -24,8 +25,4 @@ public abstract class BaseEntity {
      */
     private Date updateAt;
 
-    /**
-     * 是否删除
-     */
-    private Integer isDelete;
 }

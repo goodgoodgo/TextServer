@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.textin.dal.dao.LedgerDAO">
+
+    <resultMap id="resultMap" type="org.textin.dal.dataobject.LedgerDO">
+        <id column="id" property="id"/>
+        <id column="is_delete" property="isDelete"/>
+        <id column="create_at" property="createAt"/>
+        <id column="update_at" property="updateAt"/>
+
+        <result column="name" property="name"/>
+        <result column="expenditure" property="expenditure"/>
+        <result column="income" property="income"/>
+        <result column="user_id" property="userId"/>
+        <result column="budget" property="budget"/>
+
+    </resultMap>
+    <sql id="allColumn">id, is_delete, create_at, update_at,name,expenditure,income,user_id,budget</sql>
+    <sql id="tableName">ledger</sql>
+
+    <select id="get" resultType="org.textin.dal.dataobject.LedgerDO" resultMap="resultMap">
+    select <include refid="allColumn"/>
+        from ledger where id = #{id}
+    </select>
+
+</mapper>

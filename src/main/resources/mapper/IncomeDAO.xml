@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.textin.dal.dao.IncomeDao">
+<mapper namespace="org.textin.dal.dao.IncomeDAO">
 
     <resultMap id="resultMap" type="org.textin.dal.dataobject.IncomeDO">
         <id column="id" property="id"/>
@@ -16,7 +16,7 @@
         <result column="creatorId" property="creatorId"/>
         <result column="ledgerId" property="ledgerId"/>
     </resultMap>
-    <sql id="allColumn">id, is_delete, create_at, update_at,amount,category,subcategory,comment,creatorId,ledgerId</sql>
+    <sql id="allColumn">id, is_delete, create_at, update_at,amount,category,subcategory,comment,creator_id,ledger_id</sql>
     <sql id="tableName">income</sql>
 
     <sql id="where_clause_do" >

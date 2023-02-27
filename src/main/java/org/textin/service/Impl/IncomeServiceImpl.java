@@ -1,7 +1,7 @@
 package org.textin.service.Impl;
 
-import org.springframework.stereotype.Component;
-import org.textin.dal.dao.IncomeDao;
+import org.springframework.stereotype.Service;
+import org.textin.dal.dao.IncomeDAO;
 import org.textin.dal.dataobject.IncomeDO;
 import org.textin.model.entity.Income;
 import org.textin.model.result.ResultModel;
@@ -19,12 +19,12 @@ import java.util.Date;
  * @author: ma
  * @create: 2023-02-24 10:42
  */
-@Component
+@Service
 public class IncomeServiceImpl implements IncomeService {
 
 
     @Resource
-    private IncomeDao incomeDao;
+    private IncomeDAO incomeDao;
 
 
     @Override

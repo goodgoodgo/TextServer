@@ -37,4 +37,9 @@ public class LedgerDO extends BaseDO {
      * 所属用户ID
      */
     private Long userId;
+
+    /**
+     * 预算
+     */
+    private BigDecimal budget;
 }
