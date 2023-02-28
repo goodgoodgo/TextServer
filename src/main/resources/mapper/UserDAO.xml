@@ -14,8 +14,9 @@
         <result column="status" property="status"/>
         <result column="gender" property="gender"/>
         <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
     </resultMap>
-    <sql id="allColumn">id, is_delete, create_at, update_at,username,password,status,gender,phone</sql>
+    <sql id="allColumn">id, is_delete, create_at, update_at,username,password,status,gender,phone,eamil</sql>
     <sql id="tableName">users</sql>
 
     <sql id="where_clause_do" >

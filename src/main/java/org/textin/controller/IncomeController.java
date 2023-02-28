@@ -2,6 +2,7 @@ package org.textin.controller;
 
 import com.alibaba.fastjson.JSON;
 import org.springframework.web.bind.annotation.*;
+import org.textin.annotation.IsLogin;
 import org.textin.model.entity.Income;
 import org.textin.service.IncomeService;
 
@@ -22,6 +23,6 @@ public class IncomeController {
 
     @PostMapping("/save")
     public String saveIncome(@RequestBody Income income){
-        return JSON.toJSONString(incomeService.save(income));
+        return incomeService.save(income);
     }
 }

@@ -1,5 +1,11 @@
+import org.textin.util.MailUtils;
+import org.textin.util.StringUtil;
+
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @program: TextServer
@@ -9,9 +15,6 @@ import java.util.Date;
  */
 public class Test {
     public static void main(String[] args) {
-        java.util.Date date = new Date();
-        Timestamp t = new Timestamp(date.getTime());
-
-        System.out.println(t);
+        MailUtils.sendEmail(StringUtil.generateCode(),"1771662778@qq.com");
     }
 }

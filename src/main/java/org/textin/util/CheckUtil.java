@@ -5,6 +5,8 @@ import org.textin.exception.BizException;
 import org.textin.model.enums.ErrorCodeEn;
 
 import java.text.MessageFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @program: TextServer
@@ -43,4 +45,14 @@ public class CheckUtil {
             throw new BizException(errorCode);
         }
     }
+
+    public static void isPhoneNumberValid(String phoneNumber,ErrorCodeEn errorCode) {
+        String regex = "^1[3-9]\\d{9}$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(phoneNumber);
+        if(!matcher.matches()){
+            throw new BizException(errorCode);
+        }
+    }
+
 }

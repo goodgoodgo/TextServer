@@ -2,6 +2,8 @@ package org.textin.service;
 
 import org.textin.model.entity.User;
 
+import javax.servlet.http.HttpSession;
+
 /**
  * @program: TextServer
  * @description:
@@ -10,4 +12,6 @@ import org.textin.model.entity.User;
  */
 public interface UserService {
     User get(Long id);
+
+    String sendCode(String phone, HttpSession httpSession);
 }

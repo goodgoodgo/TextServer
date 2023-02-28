@@ -15,7 +15,8 @@ import java.util.Date;
 
 public interface IncomeService {
 
-    ResultModel save(Income income);
+
+    String save(Income income);
 
     ResultModel<Boolean> delete(Income income);
 
