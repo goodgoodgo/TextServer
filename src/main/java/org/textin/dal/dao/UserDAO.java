@@ -9,5 +9,10 @@ import org.textin.dal.dataobject.UserDO;
  * @create: 2023-02-24 15:33
  */
 public interface UserDAO {
-    UserDO get(Long id);
+
+    UserDO findById(Long id);
+
+    void insert(UserDO userDO);
+
+    UserDO findUserByEmail(String email);
 }

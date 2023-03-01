@@ -5,7 +5,6 @@ import org.springframework.util.ObjectUtils;
 import org.textin.model.entity.OptLog;
 import org.textin.model.entity.User;
 import org.textin.model.enums.CacheBizTypeEn;
-import org.textin.request.user.UserBaseLoginRequest;
 import org.textin.service.CacheService;
 import org.textin.util.EventBus;
 import org.textin.util.StringUtil;
@@ -28,13 +27,13 @@ public class AbstractLoginManager {
      */
     private static final Long USER_LOGIN_TOKEN_EXPIRE_TIMEOUT = 60 * 60 * 24 * 7L;
 
-    protected String login(User user, UserBaseLoginRequest baseLoginRequest) {
+    protected String login(User user) {
         // 缓存登录凭证 token =》 user
         String token = StringUtil.generateUUID();
         cacheLoginUser(token, user);
 
         // 触发保存操作日志事件
-        EventBus.emit(EventBus.MsgType.USER_LOGIN, OptLog.createUserLoginRecordLog(user.getId(), JSON.toJSONString(baseLoginRequest)));
+        EventBus.emit(EventBus.MsgType.USER_LOGIN, OptLog.createUserLoginRecordLog(user.getId(), JSON.toJSONString(user)));
 
         return token;
     }

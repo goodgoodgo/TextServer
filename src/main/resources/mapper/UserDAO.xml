@@ -16,7 +16,7 @@
         <result column="phone" property="phone"/>
         <result column="email" property="email"/>
     </resultMap>
-    <sql id="allColumn">id, is_delete, create_at, update_at,username,password,status,gender,phone,eamil</sql>
+    <sql id="allColumn">id, is_deleted, create_at, update_at,username,password,status,gender,phone,email</sql>
     <sql id="tableName">users</sql>
 
     <sql id="where_clause_do" >
@@ -27,11 +27,29 @@
             </if>
         </trim>
     </sql>
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="org.textin.dal.dataobject.UserDO">
+        insert into <include refid="tableName"/>
+        (create_at,username,password,gender,email)
+        values
+        (
+        #{createAt},
+        #{username},
+        #{password},
+        #{gender},
+        #{email}
+        )
+    </insert>
 
-    <select id="get" resultMap="resultMap" resultType="org.textin.dal.dataobject.UserDO">
+    <select id="findById" resultMap="resultMap" resultType="org.textin.dal.dataobject.UserDO">
         SELECT <include refid="allColumn"/>
         FROM <include refid="tableName"/>
         where id = #{id}
+    </select>
+
+    <select id="findUserByEmail" resultMap="resultMap" resultType="org.textin.dal.dataobject.UserDO">
+        SELECT <include refid="allColumn"/>
+        FROM <include refid="tableName"/>
+        where email = #{email}
     </select>
 
 </mapper>

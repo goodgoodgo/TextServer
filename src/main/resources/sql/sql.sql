@@ -6,13 +6,13 @@ CREATE TABLE users (
   id INT NOT NULL AUTO_INCREMENT,
   username VARCHAR(255) NOT NULL,
   password VARCHAR(255) NOT NULL,
-  gender ENUM('M', 'F', 'O') NOT NULL DEFAULT 'M',
+  gender varchar(32) NOT NULL DEFAULT 'M',
   phone VARCHAR(20) NOT NULL DEFAULT 'UNKNOWN',
   create_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   update_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   is_deleted BOOLEAN NOT NULL DEFAULT 0,
   role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
-  status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+  status varchar(32) NOT NULL DEFAULT 'active',
   PRIMARY KEY (id)
 );
 

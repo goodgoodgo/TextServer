@@ -53,7 +53,7 @@ public class CacheServiceImpl implements CacheService {
     private static final Set<String> DELETE_KEYS = new HashSet<>();
 
     @Override
-    public Boolean set(CacheBizTypeEn bizTypeEn, String key, String value) {
+    public boolean set(CacheBizTypeEn bizTypeEn, String key, String value) {
         checkKey(key);
         String buildKey=buildKey(bizTypeEn,key);
         if(ALL_CACHE.containsKey(buildKey)){
@@ -116,6 +116,7 @@ public class CacheServiceImpl implements CacheService {
 
     @Scheduled(cron = "0/5 * * * * ? ")
     public void task(){
+
         SafesUtil.ofMap(ALL_CACHE).forEach((k,v)->{
             if(v.getExpire()!=-1L&&System.currentTimeMillis()>= v.getExpire()){
                 ALL_CACHE.remove(k);

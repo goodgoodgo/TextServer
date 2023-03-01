@@ -16,7 +16,7 @@ public interface CacheService {
      * @param value
      * @return
      */
-    Boolean set(CacheBizTypeEn bizTypeEn,String key,String value);
+    boolean set(CacheBizTypeEn bizTypeEn,String key,String value);
 
     /**
      * 存储并设置超时时长(单位:秒)

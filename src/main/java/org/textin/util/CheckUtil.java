@@ -55,4 +55,13 @@ public class CheckUtil {
         }
     }
 
+    public static void isEmailValid(String email,ErrorCodeEn errorCode) {
+        String regex = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(email);
+        if(!matcher.matches()){
+            throw new BizException(errorCode);
+        }
+    }
+
 }

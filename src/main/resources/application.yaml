@@ -10,4 +10,18 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/money_management?useUnicode=true&characterEncoding=UTF-8&useSSL=false&useAffectedRows=true&allowPublicKeyRetrieval=true
     username: root
     password: 123456
+  redis:
+    host: 43.143.3.149
+    port: 6379
+    password: mzy123456
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: 100
+logging:
+  level:
+    org.springframework.boot.autoconfigure: OFF
+
 

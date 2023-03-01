@@ -7,7 +7,8 @@ public enum ErrorCodeEn {
     SYSTEM_ERROR(9999,"系统异常"),
     PARAM_CHECK_ERROR(9998,"请求路径为空"),
     COMMON_CACHE_KEY_EMPTY(9997,"缓存值key不为空"),
-    EMAIL_NOT_VAlID(9996,"邮箱格式不合规");
+    EMAIL_NOT_VAlID(9996,"邮箱格式不合规"),
+    CACHE_CODE_NULL(9965,"验证码不存在");
 
     private Integer code;
     private String message;
