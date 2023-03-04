@@ -5,12 +5,11 @@ import com.alibaba.fastjson.JSON;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-import org.textin.dal.dao.UserDAO;
+import org.textin.dao.UserDAO;
 import org.textin.model.entity.User;
 import org.textin.model.enums.CacheBizTypeEn;
 import org.textin.model.enums.ErrorCodeEn;
 import org.textin.model.enums.UserSexEn;
-import org.textin.model.transfer.UserTransfer;
 import org.textin.model.dto.UserDTO;
 import org.textin.service.CacheService;
 import org.textin.service.UserService;
@@ -49,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User get(Long id) {
-        User user= UserTransfer.toUser(userDao.findById(id));
+        User user= userDao.findById(id);
         return user;
     }
 
@@ -67,12 +66,13 @@ public class UserServiceImpl implements UserService {
         CheckUtil.isEmailValid(loginForm.getEmail(),ErrorCodeEn.EMAIL_NOT_VAlID);
         String oldToken = request.getHeader("authorization");
         String key  = LOGIN_USER_KEY + oldToken;
-        User user=UserTransfer.toUser(userDao.findUserByEmail(loginForm.getEmail()));
+        User user=userDao.findUserByEmail(loginForm.getEmail());
         UserDTO userDTO = BeanUtil.copyProperties(user,UserDTO.class);
         if (!StringUtil.md5UserPassword(loginForm.getPassword()).equals(user.getPassword())){
             return JSON.toJSONString(ResultModelUtil.success("密码错误"));
         }
         Map<Object, Object> oldUserMap = stringRedisTemplate.opsForHash().entries(key);
+        UserHolder.saveUser(userDTO);
         EventBus.emit(EventBus.MsgType.USER_LOGIN,user);
         //token过期
         if (oldUserMap.isEmpty()) {
@@ -95,17 +95,17 @@ public class UserServiceImpl implements UserService {
         if(cacheCode==null||!cacheCode.equals(code)){
             return JSON.toJSONString(ResultModelUtil.fail(0,"验证码错误"));
         }
-        User userOld=UserTransfer.toUser(userDao.findUserByEmail(registerForm.getEmail()));
+        User userOld=userDao.findUserByEmail(registerForm.getEmail());
         if (userOld!=null){
             return JSON.toJSONString(ResultModelUtil.fail(404,"用户已存在"));
         }
-        User user=User.builder().gender(UserSexEn.MAN)
+        User user=User.builder().gender(UserSexEn.MAN.getValue())
                 .password(StringUtil.md5UserPassword(registerForm.getPassword()))
                 .username(StringUtil.generateUUID())
                 .email(registerForm.getEmail())
                 .build();
         user.setCreateAt(new Date());
-        userDao.insert(UserTransfer.toUserDO(user));
+        userDao.insert(user);
         UserDTO userDTO = BeanUtil.copyProperties(user,UserDTO.class);
         String token = StringUtil.generateUUID();
         Map<String,Object> userMap=BeanUtil.beanToMap(userDTO);

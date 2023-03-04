@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @program: TextServer
@@ -30,5 +31,7 @@ public class Expenditure extends BaseEntity{
     private Long creatorId;
 
     private Long ledgerId;
+
+    private String expenditureDate;
 
 }

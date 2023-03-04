@@ -1,6 +1,6 @@
-package org.textin.dal.dao;
+package org.textin.dao;
 
-import org.textin.dal.dataobject.LedgerDO;
+import org.textin.model.entity.Ledger;
 
 /**
  * @program: TextServer
@@ -9,5 +9,5 @@ import org.textin.dal.dataobject.LedgerDO;
  * @create: 2023-02-26 09:13
  */
 public interface LedgerDAO {
-    LedgerDO get(Long userId);
+    Ledger get(Long userId);
 }

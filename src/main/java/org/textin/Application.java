@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 
 @SpringBootApplication
-@MapperScan(value = {"org.textin.dal.dao"})
+@MapperScan(value = {"org.textin.dao"})
 @EnableTransactionManagement
 @EnableScheduling
 public class Application  {

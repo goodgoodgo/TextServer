@@ -1,4 +1,4 @@
-package org.textin.dal.dataobject;
+package org.textin.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CacheDO extends BaseDO {
+public class Cache extends BaseEntity {
 
     private String type;
 

@@ -25,4 +25,5 @@ public class IncomeController {
     public String saveIncome(@RequestBody Income income){
         return incomeService.save(income);
     }
+
 }

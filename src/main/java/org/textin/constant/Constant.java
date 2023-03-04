@@ -15,5 +15,5 @@ public class Constant {
     public static final String LOGIN_CODE_KEY = "login:code:";
     public static final Long LOGIN_CODE_TTL=4L;
     public static final String LOGIN_USER_KEY = "login:token:";
-    public static final Long LOGIN_USER_TTL=1L;
+    public static final Long LOGIN_USER_TTL=40L;
 }

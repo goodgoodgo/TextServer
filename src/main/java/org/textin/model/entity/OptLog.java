@@ -17,7 +17,7 @@ import org.textin.model.enums.OptLogTypeEn;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OptLog {
+public class OptLog extends BaseEntity{
     private OptLogTypeEn type;
 
     private Long operatorId;

@@ -8,7 +8,10 @@ public enum ErrorCodeEn {
     PARAM_CHECK_ERROR(9998,"请求路径为空"),
     COMMON_CACHE_KEY_EMPTY(9997,"缓存值key不为空"),
     EMAIL_NOT_VAlID(9996,"邮箱格式不合规"),
-    CACHE_CODE_NULL(9965,"验证码不存在");
+    CACHE_CODE_NULL(9965,"验证码不存在"),
+    LEDGER_EMPTY(9964,"账簿为空"),
+
+    BUDGET_EMPTY(9963,"预算为空");
 
     private Integer code;
     private String message;

@@ -1,6 +1,5 @@
 package org.textin.service;
 
-import org.textin.model.entity.Ledger;
 
 /**
  * @program: TextServer
@@ -9,5 +8,7 @@ import org.textin.model.entity.Ledger;
  * @create: 2023-02-26 09:36
  */
 public interface LedgerService {
-    Ledger get(Long id);
+    String getLedger(Long id,String year,String month,Long userId);
+
+    String getChartInfo(String data);
 }

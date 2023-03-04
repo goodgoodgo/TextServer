@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.textin.dao.BudgetDAO">
+    <resultMap id="resultMap" type="org.textin.model.entity.Budget">
+        <id column="id" property="id"/>
+        <id column="is_delete" property="isDelete"/>
+        <id column="create_at" property="createAt"/>
+        <id column="update_at" property="updateAt"/>
+
+        <result column="budget_date" property="budgetDate"/>
+        <result column="budget" property="budget"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <sql id="allColumn">id, is_deleted, create_at, update_at,budget,budget_date,user_id</sql>
+    <sql id="tableName">budget</sql>
+    <sql id="where_clause_do" >
+        <trim prefix="where" prefixOverrides="and|or" >
+            is_deleted = 0
+        </trim>
+    </sql>
+    <select id="findByIdAndBudgetDate" resultType="org.textin.model.entity.Budget">
+        select <include refid="allColumn"/>
+            from <include refid="tableName"/>
+        where user_id=#{useId} and budget_date like  #{BudgetDate}
+    </select>
+
+
+</mapper>

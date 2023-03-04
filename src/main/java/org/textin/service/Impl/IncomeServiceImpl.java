@@ -3,11 +3,9 @@ package org.textin.service.Impl;
 import com.alibaba.fastjson.JSON;
 import org.springframework.stereotype.Service;
 import org.textin.annotation.IsLogin;
-import org.textin.dal.dao.IncomeDAO;
-import org.textin.dal.dataobject.IncomeDO;
+import org.textin.dao.IncomeDAO;
 import org.textin.model.entity.Income;
 import org.textin.model.result.ResultModel;
-import org.textin.model.transfer.IncomeTransfer;
 import org.textin.service.IncomeService;
 import org.textin.util.EventBus;
 import org.textin.util.ResultModelUtil;
@@ -32,10 +30,9 @@ public class IncomeServiceImpl implements IncomeService {
     @IsLogin
     @Override
     public String save(Income income) {
-        IncomeDO incomeDO= IncomeTransfer.toIncomeDO(income);
-        incomeDO.initBase();
-        incomeDO.setCreateAt(new Date());
-        incomeDao.insert(incomeDO);
+        income.setCreateAt(new Date());
+        income.initBase();
+        incomeDao.insert(income);
         EventBus.emit(EventBus.MsgType.INCOME_CREATE,income);
         return JSON.toJSONString(ResultModelUtil.success());
     }

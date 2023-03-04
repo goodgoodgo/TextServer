@@ -7,9 +7,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.textin.dal.dao.CacheDAO;
-import org.textin.dal.dataobject.CacheDO;
+import org.textin.dao.CacheDAO;
 import org.textin.exception.BizException;
+import org.textin.model.entity.Cache;
 import org.textin.model.enums.CacheBizTypeEn;
 import org.textin.model.enums.ErrorCodeEn;
 import org.textin.service.CacheService;
@@ -132,26 +132,26 @@ public class CacheServiceImpl implements CacheService {
             DELETE_KEYS.clear();
         }
 
-        List<CacheDO> newCacheDO=new ArrayList<>();
+        List<Cache> newCache=new ArrayList<>();
         ALL_CACHE.forEach((key,stringValue)->{
             if(MODIFY_CACHE.contains(key)){
                 cacheDAO.updateByKey(key, JSON.toJSONString(stringValue));
             }
             if (NEW_CACHE.contains(key)) {
-                CacheDO cacheDO = CacheDO.builder()
+                Cache cache = Cache.builder()
                         .key(key)
                         .value(JSON.toJSONString(stringValue))
                         .type(stringValue.getType())
                         .build();
-                cacheDO.initBase();
-                newCacheDO.add(cacheDO);
+                cache.initBase();
+                newCache.add(cache);
             }
         });
         MODIFY_CACHE.clear();
-        if(newCacheDO.size()!=0){
-            newCacheDO.forEach(cacheDO -> {
+        if(newCache.size()!=0){
+            newCache.forEach(cache -> {
                 try {
-                    cacheDAO.insert(cacheDO);
+                    cacheDAO.insert(cache);
                 } catch (Exception e) {}
             });
         }

@@ -45,4 +45,5 @@ public class UserController {
         return JSON.toJSONString(ResultModelUtil.success(UserHolder.getUser()));
     }
 
+
 }

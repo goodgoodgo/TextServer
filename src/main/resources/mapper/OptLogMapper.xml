@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.textin.dal.dao.OptLogDAO">
+<mapper namespace="org.textin.dao.OptLogDAO">
 
-    <resultMap id="resultMap" type="org.textin.dal.dataobject.OptLogDO">
+    <resultMap id="resultMap" type="org.textin.model.entity.OptLog">
         <id column="id" property="id"/>
         <id column="is_delete" property="isDelete"/>
         <id column="create_at" property="createAt"/>
@@ -32,7 +32,7 @@
         </trim>
     </sql>
 
-    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="org.textin.dal.dataobject.OptLogDO">
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="org.textin.model.entity.OptLog">
         INSERT INTO <include refid="table_name"/>
         ( type, operator_id, content, create_at, update_at )
         VALUES
@@ -45,7 +45,7 @@
         )
     </insert>
 
-    <select id="query" resultMap="resultMap" parameterType="org.textin.dal.dataobject.OptLogDO">
+    <select id="query" resultMap="resultMap" parameterType="org.textin.model.entity.OptLog">
         select <include refid="all_column"/>
         from <include refid="table_name"/>
         <include refid="where_clause_do"/>

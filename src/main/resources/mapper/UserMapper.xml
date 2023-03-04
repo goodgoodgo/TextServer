@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.textin.dal.dao.UserDAO">
+<mapper namespace="org.textin.dao.UserDAO">
 
-    <resultMap id="resultMap" type="org.textin.dal.dataobject.UserDO">
+    <resultMap id="resultMap" type="org.textin.model.entity.User">
         <id column="id" property="id"/>
         <id column="is_delete" property="isDelete"/>
         <id column="create_at" property="createAt"/>
@@ -21,13 +21,13 @@
 
     <sql id="where_clause_do" >
         <trim prefix="where" prefixOverrides="and|or" >
-            is_delete = 0
+            is_deleted = 0
             <if test="status != null">
                 and status = #{status}
             </if>
         </trim>
     </sql>
-    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="org.textin.dal.dataobject.UserDO">
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="org.textin.model.entity.User">
         insert into <include refid="tableName"/>
         (create_at,username,password,gender,email)
         values
@@ -40,13 +40,13 @@
         )
     </insert>
 
-    <select id="findById" resultMap="resultMap" resultType="org.textin.dal.dataobject.UserDO">
+    <select id="findById" resultMap="resultMap" resultType="org.textin.model.entity.User">
         SELECT <include refid="allColumn"/>
         FROM <include refid="tableName"/>
         where id = #{id}
     </select>
 
-    <select id="findUserByEmail" resultMap="resultMap" resultType="org.textin.dal.dataobject.UserDO">
+    <select id="findUserByEmail" resultMap="resultMap" resultType="org.textin.model.entity.User">
         SELECT <include refid="allColumn"/>
         FROM <include refid="tableName"/>
         where email = #{email}

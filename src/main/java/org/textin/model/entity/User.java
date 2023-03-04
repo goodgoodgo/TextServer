@@ -24,12 +24,12 @@ public class User extends BaseEntity{
 
     private String password;
 
-    private UserSexEn gender;
+    private String gender;
 
     private String phone;
 
     private String email;
 
-    private UserStatusEn status;
+    private String status;
 
 }
