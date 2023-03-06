@@ -10,5 +10,5 @@ package org.textin.service;
 public interface LedgerService {
     String getLedger(Long id,String year,String month,Long userId);
 
-    String getChartInfo(String data);
+    String getChartInfo(Long userId,String data);
 }

@@ -42,6 +42,23 @@
         SELECT SUM(amount)
         FROM <include refid="tableName"/>
         where creator_id = #{creatorId} and ledger_id=#{ledgerId} and expenditure_date = #{expenditureDate}
+    </select>
 
+    <select id="findBetweenDate" resultType="org.textin.model.entity.Expenditure">
+        select <include refid="allColumn"/>
+        from <include refid="tableName"/>
+        where expenditure_date BETWEEN #{startDay} and #{endDay} and creator_id = #{creatorId};
+    </select>
+
+    <select id="sumByDateAndUserId" resultType="java.math.BigDecimal">
+        SELECT SUM(amount)
+        FROM <include refid="tableName"/>
+        where creator_id = #{creatorId} and expenditure_date = #{expenditureDate}
+    </select>
+
+    <select id="sumByMonth" resultType="java.math.BigDecimal">
+        SELECT SUM(amount)
+        FROM <include refid="tableName"/>
+        where creator_id = #{creatorId} and expenditure_date like #{expenditureDate}
     </select>
 </mapper>

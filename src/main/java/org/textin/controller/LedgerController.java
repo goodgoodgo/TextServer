@@ -24,7 +24,7 @@ public class LedgerController {
     }
 
     @GetMapping("/chart")
-    public String getChartPage(@RequestParam("date") String data){
-        return ledgerService.getChartInfo(data);
+    public String getChartPage(@RequestParam("userId") Long userId,@RequestParam("date") String data){
+        return ledgerService.getChartInfo(userId,data);
     }
 }

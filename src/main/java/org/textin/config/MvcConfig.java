@@ -19,7 +19,7 @@ public class MvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor(stringRedisTemplate))
                 .excludePathPatterns(
-                        "/ledger",
+                        "/ledger/*",
                         "/user/code",
                         "/user/register",
                         "/user/login"

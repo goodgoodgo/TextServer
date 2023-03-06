@@ -1,7 +1,5 @@
 package org.textin;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,13 +8,16 @@ import org.textin.dao.IncomeDAO;
 import org.textin.dao.UserDAO;
 import org.textin.model.entity.Expenditure;
 import org.textin.model.entity.Income;
+import org.textin.model.vo.IncomeVO;
+import org.textin.model.vo.SubcategoryData;
+import org.textin.service.BudgetService;
 import org.textin.util.TransferUtil;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.TextStyle;
 import java.util.*;
-
+import java.util.stream.Collectors;
 
 
 /**
@@ -34,82 +35,51 @@ public class STest {
     private UserDAO userDAO;
     @Resource
     private ExpenditureDAO expenditureDAO;
+    @Resource
+    private BudgetService budgetService;
     @Test
     void testString(){
-        Integer year=2022;
-        Integer month=7;
-        List<Expenditure> byId = expenditureDAO.findById(1L, 1L,"2022-07%");
-        List<Income> incomes = incomeDAO.findById(1l, 1l,"2022-07%");
-        incomes.addAll(TransferUtil.toIncome(byId));
-
-        Comparator<Income> incomeComparator = Comparator.comparing(Income::getCreateAt).reversed();
-        incomes.sort(incomeComparator);
-        Map<String,List<Income>> map=new TreeMap<>();
-        incomes.forEach(income -> {
-            List<Income> incomeList;
-            if(map.containsKey(income.getIncomeDate())){
-                incomeList = map.get(income.getIncomeDate());
+        Long userId=1l;
+        LocalDate localDate=LocalDate.now();
+        List<IncomeVO> incomeYearVO=new ArrayList<>();
+        List<IncomeVO> expenditureYearVO=new ArrayList<>();
+        JSONObject jsonObject=new JSONObject();
+        String monthDate;
+        for (int i = 1; i <= 12; i++) {
+            if(1<=9){
+               monthDate=localDate.getYear()+"-0"+i+"%";
             }else {
-                incomeList = new ArrayList<>();
+                monthDate=localDate.getYear()+"-"+i+"%";
             }
-            incomeList.add(income);
-            map.put(income.getIncomeDate(),incomeList);
-        });
-        Map<String,List<Income>> reversedTreeMap = new TreeMap<>(Collections.reverseOrder());
-        reversedTreeMap.putAll(map);
-        JSONArray jsonArray=new JSONArray();
-        List<List<Income>> lists=new ArrayList<>(reversedTreeMap.values());
-        lists.forEach((list)->{
-            JSONObject jsonObject=new JSONObject();
-            jsonObject.put("dayIncome",100.00);
-            jsonObject.put("dayExpenditure",100.00);
-            jsonObject.put("date","2022-3-03");
-            jsonObject.put("week","星期一");
-            jsonObject.put("dayData",list);
-            jsonArray.add(jsonObject);
-        });
-        System.out.println(jsonArray);
+            BigDecimal bigDecimal=BigDecimal.ZERO;
+            BigDecimal bigDecimalE=BigDecimal.ZERO;
+            if(null!=incomeDAO.sumByMonth(userId,monthDate)){
+                bigDecimal=incomeDAO.sumByMonth(userId,monthDate);
+            }
+            if(null!=expenditureDAO.sumByMonth(userId,monthDate)){
+                bigDecimalE=expenditureDAO.sumByMonth(userId,monthDate);
+            }
+            incomeYearVO.add(IncomeVO.builder()
+                    .date(String.valueOf(i))
+                    .account(bigDecimal)
+                    .build());
+            expenditureYearVO.add(IncomeVO.builder()
+                    .date(String.valueOf(i))
+                    .account(bigDecimalE)
+                    .build());
+        }
+        jsonObject.put("incomeData",incomeYearVO);
+        jsonObject.put("expenditureData",expenditureYearVO);
+        System.out.println(jsonObject);
     }
 
     @Test
     void test(){
-        List<Expenditure> byId = expenditureDAO.findById(1L, 1L,"2022-07%");
-        List<Income> incomes = incomeDAO.findById(1l, 1l,"2022-07%");
-        incomes.addAll(TransferUtil.toIncome(byId));
 
-        Comparator<Income> incomeComparator = Comparator.comparing(Income::getCreateAt).reversed();
-        incomes.sort(incomeComparator);
-        Map<String,List<Income>> map=new TreeMap<>();
-        incomes.forEach(income -> {
-            List<Income> incomeList;
-            if(map.containsKey(income.getIncomeDate())){
-                incomeList = map.get(income.getIncomeDate());
-            }else {
-                incomeList = new ArrayList<>();
-            }
-            incomeList.add(income);
-            map.put(income.getIncomeDate(),incomeList);
-        });
-        Map<String,List<Income>> reversedTreeMap = new TreeMap<>(Collections.reverseOrder());
-        reversedTreeMap.putAll(map);
-        List<Double> incomeSum=new ArrayList<>();
-        List<Double> expenditureSum=new ArrayList<>();
-        List<String> week=new ArrayList<>();
-        List<String> dayDate=new ArrayList<>();
-        for (String key : map.keySet()) {
-            if(null!= expenditureDAO.sumByDateAndId(1l,1l,key)){
-                expenditureSum.add(expenditureDAO.sumByDateAndId(1l,1l,key));
-            }
-            if(null!=incomeDAO.sumByDateAndId(1l,1l,key)){
-                incomeSum.add(incomeDAO.sumByDateAndId(1l,1l,key));
-            }
-            week.add(LocalDate.parse(key)
-                    .getDayOfWeek().getDisplayName(TextStyle.FULL_STANDALONE, Locale.CHINA));
-            dayDate.add(key);
-        }
-        System.out.println(incomeSum);
-        System.out.println(expenditureSum);
-        System.out.println(week);
-        System.out.println(dayDate);
+    }
+
+    public static void main(String[] args) {
+        BigDecimal bigDecimal=new BigDecimal(30);
+        System.out.println(bigDecimal.divide(BigDecimal.valueOf(30)));
     }
 }

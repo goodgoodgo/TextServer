@@ -3,7 +3,6 @@ package org.textin.dao;
 import org.apache.ibatis.annotations.Param;
 import org.textin.model.entity.Budget;
 
-import java.util.Date;
 
 /**
  * @program: TextServer
