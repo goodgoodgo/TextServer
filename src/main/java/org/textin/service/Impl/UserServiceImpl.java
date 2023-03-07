@@ -11,6 +11,7 @@ import org.textin.model.enums.CacheBizTypeEn;
 import org.textin.model.enums.ErrorCodeEn;
 import org.textin.model.enums.UserSexEn;
 import org.textin.model.dto.UserDTO;
+import org.textin.model.result.ResultModel;
 import org.textin.service.CacheService;
 import org.textin.service.UserService;
 import org.textin.util.*;
@@ -47,29 +48,29 @@ public class UserServiceImpl implements UserService {
     private static final Long USER_LOGIN_TOKEN_EXPIRE_TIMEOUT = 60 * 60 * 24 * 7L;
 
     @Override
-    public User get(Long id) {
+    public ResultModel<User> get(Long id) {
         User user= userDao.findById(id);
-        return user;
+        return ResultModelUtil.success(user);
     }
 
     @Override
-    public String sendCode(String email) {
+    public ResultModel<String> sendCode(String email) {
         CheckUtil.isEmailValid(email, ErrorCodeEn.EMAIL_NOT_VAlID);
         String code= StringUtil.generateCode();
         stringRedisTemplate.opsForValue().set(LOGIN_CODE_KEY+email,code,LOGIN_CODE_TTL, TimeUnit.MINUTES);
         MailUtils.sendEmail(code,email);
-        return JSON.toJSONString(ResultModelUtil.success("验证码发生成功"));
+        return ResultModelUtil.success("验证码发生成功");
     }
 
     @Override
-    public String login(UserDTO loginForm, HttpServletRequest request) {
+    public ResultModel<String>  login(UserDTO loginForm, HttpServletRequest request) {
         CheckUtil.isEmailValid(loginForm.getEmail(),ErrorCodeEn.EMAIL_NOT_VAlID);
         String oldToken = request.getHeader("authorization");
         String key  = LOGIN_USER_KEY + oldToken;
         User user=userDao.findUserByEmail(loginForm.getEmail());
         UserDTO userDTO = BeanUtil.copyProperties(user,UserDTO.class);
         if (!StringUtil.md5UserPassword(loginForm.getPassword()).equals(user.getPassword())){
-            return JSON.toJSONString(ResultModelUtil.success("密码错误"));
+            return ResultModelUtil.success("密码错误");
         }
         Map<Object, Object> oldUserMap = stringRedisTemplate.opsForHash().entries(key);
         UserHolder.saveUser(userDTO);
@@ -81,23 +82,23 @@ public class UserServiceImpl implements UserService {
             stringRedisTemplate.opsForHash().putAll(LOGIN_USER_KEY+token,userMap);
             stringRedisTemplate.expire(LOGIN_USER_KEY+token,LOGIN_USER_TTL,TimeUnit.DAYS);
             cacheLoginUser(token, user);
-            return JSON.toJSONString(ResultModelUtil.success(token));
+            return ResultModelUtil.success(token);
         }else {
-            return JSON.toJSONString(ResultModelUtil.success());
+            return ResultModelUtil.success();
         }
     }
 
     @Override
-    public String register(UserDTO registerForm) {
+    public ResultModel<String>  register(UserDTO registerForm) {
         CheckUtil.isEmailValid(registerForm.getEmail(),ErrorCodeEn.EMAIL_NOT_VAlID);
         String cacheCode =stringRedisTemplate.opsForValue().get(LOGIN_CODE_KEY+registerForm.getEmail());
         String code=registerForm.getCode();
         if(cacheCode==null||!cacheCode.equals(code)){
-            return JSON.toJSONString(ResultModelUtil.fail(0,"验证码错误"));
+            return ResultModelUtil.fail(0,"验证码错误");
         }
         User userOld=userDao.findUserByEmail(registerForm.getEmail());
         if (userOld!=null){
-            return JSON.toJSONString(ResultModelUtil.fail(404,"用户已存在"));
+            return ResultModelUtil.fail(404,"用户已存在");
         }
         User user=User.builder().gender(UserSexEn.MAN.getValue())
                 .password(StringUtil.md5UserPassword(registerForm.getPassword()))
@@ -113,7 +114,7 @@ public class UserServiceImpl implements UserService {
         stringRedisTemplate.expire(LOGIN_USER_KEY+token,LOGIN_USER_TTL,TimeUnit.DAYS);
         cacheLoginUser(token, user);
         EventBus.emit(EventBus.MsgType.USER_REGISTER,user);
-        return JSON.toJSONString(ResultModelUtil.success(token));
+        return ResultModelUtil.success(token);
     }
 
 

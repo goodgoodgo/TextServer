@@ -8,9 +8,9 @@ import org.textin.dao.IncomeDAO;
 import org.textin.dao.UserDAO;
 import org.textin.model.entity.Expenditure;
 import org.textin.model.entity.Income;
-import org.textin.model.vo.IncomeVO;
-import org.textin.model.vo.SubcategoryData;
+import org.textin.model.vo.*;
 import org.textin.service.BudgetService;
+import org.textin.util.ResultModelUtil;
 import org.textin.util.TransferUtil;
 
 import javax.annotation.Resource;
@@ -40,42 +40,51 @@ public class STest {
     @Test
     void testString(){
         Long userId=1l;
-        LocalDate localDate=LocalDate.now();
-        List<IncomeVO> incomeYearVO=new ArrayList<>();
-        List<IncomeVO> expenditureYearVO=new ArrayList<>();
-        JSONObject jsonObject=new JSONObject();
-        String monthDate;
-        for (int i = 1; i <= 12; i++) {
-            if(1<=9){
-               monthDate=localDate.getYear()+"-0"+i+"%";
-            }else {
-                monthDate=localDate.getYear()+"-"+i+"%";
-            }
-            BigDecimal bigDecimal=BigDecimal.ZERO;
-            BigDecimal bigDecimalE=BigDecimal.ZERO;
-            if(null!=incomeDAO.sumByMonth(userId,monthDate)){
-                bigDecimal=incomeDAO.sumByMonth(userId,monthDate);
-            }
-            if(null!=expenditureDAO.sumByMonth(userId,monthDate)){
-                bigDecimalE=expenditureDAO.sumByMonth(userId,monthDate);
-            }
-            incomeYearVO.add(IncomeVO.builder()
-                    .date(String.valueOf(i))
-                    .account(bigDecimal)
-                    .build());
-            expenditureYearVO.add(IncomeVO.builder()
-                    .date(String.valueOf(i))
-                    .account(bigDecimalE)
-                    .build());
+        String year="2022";
+        String month="1";
+        if(month.length()<2){
+            month="0"+month;
         }
-        jsonObject.put("incomeData",incomeYearVO);
-        jsonObject.put("expenditureData",expenditureYearVO);
+        String date=year+"-"+month+"%";
+        BigDecimal totalIncome=BigDecimal.ZERO;
+        BigDecimal totalExpenditure=BigDecimal.ZERO;
+        if(null!=incomeDAO.sumByMonth(userId,date)){
+            totalIncome=incomeDAO.sumByMonth(userId,date);
+        }
+        if(null!=expenditureDAO.sumByMonth(userId,date)){
+            totalExpenditure=expenditureDAO.sumByMonth(userId,date);
+        }
+        List<Expenditure> expenditures=expenditureDAO.findByIdAndMonth(userId,date);
+        Comparator<Expenditure> expendituresComparator = Comparator.comparing(Expenditure::getAmount);
+        expenditures.sort(expendituresComparator);
+        JSONObject jsonObject=new JSONObject();
+        List<BillDayVO> billDayVOS=new ArrayList<>();
+        expenditures.forEach((expenditure -> {
+            billDayVOS.add(BillDayVO.builder()
+                    .date(expenditure.getExpenditureDate())
+                    .category(expenditure.getCategory())
+                    .account(expenditure.getAmount())
+                    .build());
+        }));
+        jsonObject.put("totalIncome",totalIncome);
+        jsonObject.put("totalExpenditure",totalExpenditure);
+        jsonObject.put("dayData",billDayVOS);
         System.out.println(jsonObject);
     }
 
-    @Test
-    void test(){
-
+    private Map<String,List<Income>> dateSort(List<Income> incomes){
+        Map<String,List<Income>> map=new TreeMap<>();
+        incomes.forEach(income -> {
+            List<Income> incomeList;
+            if(map.containsKey(income.getIncomeDate())){
+                incomeList = map.get(income.getIncomeDate());
+            }else {
+                incomeList = new ArrayList<>();
+            }
+            incomeList.add(income);
+            map.put(income.getIncomeDate(),incomeList);
+        });
+        return map;
     }
 
     public static void main(String[] args) {

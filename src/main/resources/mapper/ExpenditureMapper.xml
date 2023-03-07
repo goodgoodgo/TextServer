@@ -61,4 +61,10 @@
         FROM <include refid="tableName"/>
         where creator_id = #{creatorId} and expenditure_date like #{expenditureDate}
     </select>
+
+    <select id="findByIdAndMonth" resultType="org.textin.model.entity.Expenditure">
+        select <include refid="allColumn"/>
+        from <include refid="tableName"/>
+        where expenditure_date like #{expenditureDate} and creator_id = #{creatorId};
+    </select>
 </mapper>

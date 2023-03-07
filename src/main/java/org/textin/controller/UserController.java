@@ -3,6 +3,8 @@ package org.textin.controller;
 import com.alibaba.fastjson.JSON;
 import org.springframework.web.bind.annotation.*;
 import org.textin.model.dto.UserDTO;
+import org.textin.model.entity.User;
+import org.textin.model.result.ResultModel;
 import org.textin.service.UserService;
 import org.textin.util.ResultModelUtil;
 import org.textin.util.UserHolder;
@@ -25,24 +27,23 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("code")
-    public String sendCode(@RequestParam("email") String email){
-
+    public ResultModel<String> sendCode(@RequestParam("email") String email){
         return userService.sendCode(email);
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody UserDTO loginForm, HttpServletRequest httpRequest){
+    public ResultModel<String> login(@RequestBody UserDTO loginForm, HttpServletRequest httpRequest){
         return userService.login(loginForm,httpRequest);
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody UserDTO register){
+    public ResultModel<String> register(@RequestBody UserDTO register){
         return userService.register(register);
     }
 
     @GetMapping("/me")
-    public String me(){
-        return JSON.toJSONString(ResultModelUtil.success(UserHolder.getUser()));
+    public ResultModel<UserDTO> me(){
+        return ResultModelUtil.success(UserHolder.getUser());
     }
 
 
