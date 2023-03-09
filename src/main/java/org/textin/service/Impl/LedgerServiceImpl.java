@@ -18,6 +18,7 @@ import org.textin.util.UserHolder;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -110,7 +111,7 @@ public class LedgerServiceImpl implements LedgerService {
     }
 
     @Override
-    public ResultModel<JSONObject> getChartInfo(Long userId, String data) {
+    public ResultModel<JSONObject> getChartInfo(Long userId, String data,String keyDate) {
         userId=getUserId(userId);
         LocalDate localDate=LocalDate.now();
         String endDate = String.valueOf(localDate);
@@ -120,10 +121,16 @@ public class LedgerServiceImpl implements LedgerService {
             startDate= String.valueOf(localDate.minusDays(7));
             jsonObject=getJsonInfo(userId,startDate,endDate);
         }else if(data.equals("month")){
-            startDate = String.valueOf(localDate.minusMonths(1));
+            YearMonth yearMonth = YearMonth.of(localDate.getYear(), Integer.valueOf(keyDate));
+            if (keyDate.length()<2){
+                keyDate="0"+keyDate;
+            }
+            startDate = localDate.getYear() + "-" +keyDate+ "-01";
+            endDate = localDate.getYear()+"-"+keyDate+"-"+yearMonth.lengthOfMonth();
             jsonObject=getJsonInfo(userId,startDate,endDate);
         }else if(data.equals("year")){
-            startDate = String.valueOf(localDate.minusYears(1));
+            startDate = keyDate+"-01-01";
+            endDate=keyDate+"-12-31";
             jsonObject=getJsonInfo(userId,startDate,endDate);
             jsonObject.remove("incomeData");
             jsonObject.remove("expenditureData");
@@ -159,6 +166,9 @@ public class LedgerServiceImpl implements LedgerService {
         }else {
             startDate=data.split("to")[0];
             endDate=data.split("to")[1];
+            if(Math.abs(Integer.valueOf(startDate.substring(0,4))-Integer.valueOf(endDate.substring(0,4)))>2){
+                return ResultModelUtil.fail(401,"跨度过大");
+            }
             jsonObject=getJsonInfo(userId,startDate,endDate);
         }
         return ResultModelUtil.success(jsonObject);
@@ -189,9 +199,9 @@ public class LedgerServiceImpl implements LedgerService {
             }
             billVO.add(BillVO.builder()
                     .date(i+"月")
-                    .income(bigDecimal)
-                    .expenditure(bigDecimalE)
-                    .balance(bigDecimal.add(bigDecimalE))
+                    .income(bigDecimal.setScale( 0, BigDecimal.ROUND_UP ))
+                    .expenditure(bigDecimalE.setScale( 0, BigDecimal.ROUND_UP ))
+                    .balance(bigDecimal.add(bigDecimalE).setScale( 0, BigDecimal.ROUND_UP ))
                     .build());
         }
         for(BillVO billVO1 : billVO){
@@ -251,11 +261,11 @@ public class LedgerServiceImpl implements LedgerService {
         BigDecimal balance=BigDecimal.ZERO;
         //构造{日期,金额}数据结构，根据时间由早到晚进行排序
         Map<String,List<Income>> mergeMapByDate=dateSort((inAndExList));
-        List<IncomeVO> incomeVOS=new ArrayList<>();
-        List<IncomeVO> expenditureVOS=new ArrayList<>();
+        List<IncomeChartVO> incomeVOS=new ArrayList<>();
+        List<IncomeChartVO> expenditureVOS=new ArrayList<>();
         for (String key : mergeMapByDate.keySet()) {
-            IncomeVO incomeVO=new IncomeVO();
-            IncomeVO expenditureVO=new IncomeVO();
+            IncomeChartVO incomeVO=new IncomeChartVO();
+            IncomeChartVO expenditureVO=new IncomeChartVO();
             expenditureVO.setDate(key);
             expenditureVO.setAccount(BigDecimal.ZERO);
             if(null!= expenditureDAO.sumByDateAndUserId(userID,key)){
@@ -268,6 +278,34 @@ public class LedgerServiceImpl implements LedgerService {
                 incomeVO.setAccount(incomeDAO.sumByDateAndUserId(userID,key));
             }
             incomeVOS.add(incomeVO);
+        }
+        LocalDate currentDateObj = LocalDate.parse(endDate);
+        LocalDate startOfMonth = LocalDate.parse(startDate.substring(0,7) + "-01");
+        List<IncomeChartVO> incomeResult = new ArrayList<>();
+        List<IncomeChartVO> expenditureResult = new ArrayList<>();
+        for (LocalDate date = startOfMonth; !date.isAfter(currentDateObj); date = date.plusDays(1)) {
+            boolean foundIn = false;
+            boolean foundEX = false;
+            for (IncomeChartVO data : incomeVOS) {
+                if (data.getDate().equals(date.toString())) {
+                    incomeResult.add(data);
+                    foundIn = true;
+                    break;
+                }
+            }
+            for (IncomeChartVO data : expenditureVOS) {
+                if (data.getDate().equals(date.toString())) {
+                    expenditureResult.add(data);
+                    foundEX = true;
+                    break;
+                }
+            }
+            if (!foundEX) {
+                expenditureResult.add(new IncomeChartVO(BigDecimal.ZERO, date.toString()));
+            }
+            if (!foundIn) {
+                incomeResult.add(new IncomeChartVO(BigDecimal.ZERO, date.toString()));
+            }
         }
 
         //构造{消费种类,金额，子类{消费子类,金额}}结构，根据金额由大到小排序
@@ -284,6 +322,7 @@ public class LedgerServiceImpl implements LedgerService {
                         .subcategory(income.getSubcategory())
                         .build());
             }
+            subList=dateSortChart(subList);
             if(bigDecimal.compareTo(BigDecimal.ZERO)<0){
                 subList = subList.stream()
                         .sorted(Comparator.comparing(SubcategoryData::getAccount))
@@ -291,7 +330,7 @@ public class LedgerServiceImpl implements LedgerService {
                 expenditureCatVOS.add(IncomeVO.builder()
                         .account(bigDecimal)
                         .category(key)
-                        .subcategoryDate(subList)
+                        .subcategoryData(subList)
                         .date("year")
                         .build());
             }else {
@@ -301,11 +340,12 @@ public class LedgerServiceImpl implements LedgerService {
                 incomeCatVOS.add(IncomeVO.builder()
                         .account(bigDecimal)
                         .category(key)
-                        .subcategoryDate(subList)
+                        .subcategoryData(subList)
                         .date("year")
                         .build());
             }
         }
+
         incomeCatVOS=incomeCatVOS.stream()
                 .sorted(Comparator.comparing(IncomeVO::getAccount,Collections.reverseOrder()))
                 .collect(Collectors.toList());
@@ -317,8 +357,8 @@ public class LedgerServiceImpl implements LedgerService {
         jsonObject.put("totalIncome",totalIncome);
         jsonObject.put("totalExpenditure",totalExpenditure);
         jsonObject.put("balance",balance);
-        jsonObject.put("incomeData",incomeVOS);
-        jsonObject.put("expenditureData",expenditureVOS);
+        jsonObject.put("incomeData",incomeResult);
+        jsonObject.put("expenditureData",expenditureResult);
         jsonObject.put("incomeCatData",incomeCatVOS);
         jsonObject.put("expenditureCatData",expenditureCatVOS);
         return jsonObject;
@@ -373,6 +413,30 @@ public class LedgerServiceImpl implements LedgerService {
             map.put(income.getIncomeDate(),incomeList);
         });
         return map;
+    }
+
+    private List<SubcategoryData> dateSortChart(List<SubcategoryData> subcategoryData){
+        Map<String, BigDecimal> accountBySubcategory = new HashMap<>();
+        for (SubcategoryData data : subcategoryData) {
+            String subcategory = data.getSubcategory();
+            BigDecimal account = data.getAccount();
+            if (accountBySubcategory.containsKey(subcategory)) {
+                BigDecimal existingAccount = accountBySubcategory.get(subcategory);
+                existingAccount=existingAccount.add(account);
+                accountBySubcategory.put(subcategory,existingAccount );
+            } else {
+                accountBySubcategory.put(subcategory, account);
+            }
+        }
+
+        // 将结果转换为一个新的集合
+        List<SubcategoryData> result = new ArrayList<>();
+        for (Map.Entry<String, BigDecimal> entry : accountBySubcategory.entrySet()) {
+            String subcategory = entry.getKey();
+           BigDecimal account = entry.getValue();
+            result.add(new SubcategoryData(account, subcategory));
+        }
+        return result;
     }
 
 

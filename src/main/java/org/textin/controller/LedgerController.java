@@ -27,8 +27,9 @@ public class LedgerController {
     }
 
     @GetMapping("/chart")
-    public ResultModel<JSONObject> getChartPage(@RequestParam("userId") Long userId, @RequestParam("date") String data){
-        return ledgerService.getChartInfo(userId,data);
+    public ResultModel<JSONObject> getChartPage(@RequestParam("userId") Long userId, @RequestParam("date") String data,
+                                                @RequestParam("key") String keyDate){
+        return ledgerService.getChartInfo(userId,data,keyDate);
     }
 
     @GetMapping("/bill")

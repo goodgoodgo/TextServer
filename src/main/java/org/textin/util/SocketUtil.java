@@ -51,6 +51,6 @@ public class SocketUtil {
             try {if(socket!=null) socket.close();} catch (IOException e) {}
             log.info("远程接口调用结束.");
         }
-        return "食物";
+        return "其他类别";
     }
 }

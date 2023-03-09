@@ -13,7 +13,7 @@ import org.textin.model.result.ResultModel;
  */
 public interface LedgerService {
     ResultModel<JSONArray> getLedger(Long id, String year, String month, Long userId);
-    ResultModel<JSONObject> getChartInfo(Long userId, String data);
+    ResultModel<JSONObject> getChartInfo(Long userId, String data,String key);
     ResultModel<JSONObject> getBill(Long userId,String year);
     ResultModel<JSONObject> getMonthBill(Long userId, String year, String month);
 }

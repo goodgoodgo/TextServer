@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
 import org.textin.model.result.ResultModel;
-import org.textin.service.AccountService;
+import org.textin.service.ExpenditureService;
 import org.textin.util.JsonMsgUtil;
 import org.textin.util.ResultModelUtil;
 import org.textin.util.SocketUtil;
@@ -24,12 +24,12 @@ import java.util.List;
  */
 
 @Service
-public class AccountServiceImpl implements AccountService {
+public class ExpenditureServiceImpl implements ExpenditureService {
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
-    public ResultModel<HashMap<String, String>> KeepAccountByImageShop(byte[] imgBytes) {
+    public HashMap<String, String> KeepAccountByImageShop(byte[] imgBytes) {
 
         HashMap<String, String> map = new HashMap<>();
         List<String> textList = new ArrayList<>();
@@ -70,11 +70,11 @@ public class AccountServiceImpl implements AccountService {
         map.put("price", price);
         map.put("type", type);
 
-        return ResultModelUtil.success(map);
+        return map;
     }
 
     @Override
-    public ResultModel<HashMap<String, String>> KeepAccountByImageTicket(byte[] imgBytes) {
+    public HashMap<String, String> KeepAccountByImageTicket(byte[] imgBytes) {
 
         HashMap<String, String> map = new HashMap<>();
         String url = "https://api.textin.com/robot/v1.0/api/train_ticket";
@@ -89,7 +89,7 @@ public class AccountServiceImpl implements AccountService {
         map.put("time", time);
         map.put("price", price);
         map.put("type", type);
-        return ResultModelUtil.success(map);
+        return map;
     }
 
     @Override

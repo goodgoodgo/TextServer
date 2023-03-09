@@ -6,21 +6,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * @program: TextServer
  * @description:
  * @author: ma
- * @create: 2023-03-06 10:24
+ * @create: 2023-03-08 10:47
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class IncomeVO {
+public class IncomeChartVO {
     private BigDecimal account;
     private String date;
-    private String category;
-    private List<SubcategoryData> subcategoryData;
 }

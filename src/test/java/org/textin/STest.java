@@ -1,6 +1,7 @@
 package org.textin;
 
-import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.textin.dao.ExpenditureDAO;
@@ -11,11 +12,18 @@ import org.textin.model.entity.Income;
 import org.textin.model.vo.*;
 import org.textin.service.BudgetService;
 import org.textin.util.ResultModelUtil;
+import org.textin.util.SocketUtil;
+import org.textin.util.TextHttpUtil;
 import org.textin.util.TransferUtil;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,57 +46,46 @@ public class STest {
     @Resource
     private BudgetService budgetService;
     @Test
-    void testString(){
-        Long userId=1l;
-        String year="2022";
-        String month="1";
-        if(month.length()<2){
-            month="0"+month;
-        }
-        String date=year+"-"+month+"%";
-        BigDecimal totalIncome=BigDecimal.ZERO;
-        BigDecimal totalExpenditure=BigDecimal.ZERO;
-        if(null!=incomeDAO.sumByMonth(userId,date)){
-            totalIncome=incomeDAO.sumByMonth(userId,date);
-        }
-        if(null!=expenditureDAO.sumByMonth(userId,date)){
-            totalExpenditure=expenditureDAO.sumByMonth(userId,date);
-        }
-        List<Expenditure> expenditures=expenditureDAO.findByIdAndMonth(userId,date);
-        Comparator<Expenditure> expendituresComparator = Comparator.comparing(Expenditure::getAmount);
-        expenditures.sort(expendituresComparator);
-        JSONObject jsonObject=new JSONObject();
-        List<BillDayVO> billDayVOS=new ArrayList<>();
-        expenditures.forEach((expenditure -> {
-            billDayVOS.add(BillDayVO.builder()
-                    .date(expenditure.getExpenditureDate())
-                    .category(expenditure.getCategory())
-                    .account(expenditure.getAmount())
-                    .build());
-        }));
-        jsonObject.put("totalIncome",totalIncome);
-        jsonObject.put("totalExpenditure",totalExpenditure);
-        jsonObject.put("dayData",billDayVOS);
-        System.out.println(jsonObject);
+    void testString() throws FileNotFoundException {
+        
     }
 
-    private Map<String,List<Income>> dateSort(List<Income> incomes){
+    public static void main(String[] args) throws FileNotFoundException {
+        String currentMonth = "2023-03"; // 当前月份
+        String endDate = "2023-03-31"; // 当前日期
+        LocalDate currentDateObj = LocalDate.parse(endDate);
+        LocalDate startOfMonth = LocalDate.parse(currentMonth + "-01");
+        List<IncomeChartVO> incomeData = new ArrayList<>();
+
+        List<IncomeChartVO> result = new ArrayList<>();
+        for (LocalDate date = startOfMonth; !date.isAfter(currentDateObj); date = date.plusDays(1)) {
+            boolean found = false;
+            for (IncomeChartVO data : incomeData) {
+                if (data.getDate().equals(date.toString())) {
+                    result.add(data);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                result.add(new IncomeChartVO(BigDecimal.ZERO, date.toString()));
+            }
+        }
+        System.out.println(JSON.toJSONString(result));
+    }
+
+    private Map<String,List<Income>> categorySort(List<Income> incomes){
         Map<String,List<Income>> map=new TreeMap<>();
         incomes.forEach(income -> {
             List<Income> incomeList;
-            if(map.containsKey(income.getIncomeDate())){
-                incomeList = map.get(income.getIncomeDate());
+            if(map.containsKey(income.getCategory())){
+                incomeList = map.get(income.getCategory());
             }else {
                 incomeList = new ArrayList<>();
             }
             incomeList.add(income);
-            map.put(income.getIncomeDate(),incomeList);
+            map.put(income.getCategory(),incomeList);
         });
         return map;
-    }
-
-    public static void main(String[] args) {
-        BigDecimal bigDecimal=new BigDecimal(30);
-        System.out.println(bigDecimal.divide(BigDecimal.valueOf(30)));
     }
 }
