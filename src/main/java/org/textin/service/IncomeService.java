@@ -1,10 +1,7 @@
 package org.textin.service;
 
-import org.springframework.stereotype.Service;
 import org.textin.model.entity.Income;
 import org.textin.model.result.ResultModel;
-
-import java.util.Date;
 
 /**
  * @program: TextServer
@@ -14,11 +11,7 @@ import java.util.Date;
  */
 
 public interface IncomeService {
-
-
-    String save(Income income);
-
-    ResultModel<Boolean> delete(Income income);
-
-    ResultModel<String> findIncomeByDate(Date date);
+    ResultModel<String>save(Income income);
+    ResultModel<String> delete(Long id);
+    ResultModel<String> update(Income income);
 }

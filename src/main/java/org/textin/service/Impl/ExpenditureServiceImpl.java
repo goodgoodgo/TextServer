@@ -1,20 +1,18 @@
 package org.textin.service.Impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
+import org.textin.dao.ExpenditureDAO;
+import org.textin.model.entity.Expenditure;
 import org.textin.model.result.ResultModel;
 import org.textin.service.ExpenditureService;
-import org.textin.util.JsonMsgUtil;
+import org.textin.util.EventBus;
 import org.textin.util.ResultModelUtil;
-import org.textin.util.SocketUtil;
-import org.textin.util.TextHttpUtil;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+
 
 /**
  * @program: TextServer
@@ -26,80 +24,75 @@ import java.util.List;
 @Service
 public class ExpenditureServiceImpl implements ExpenditureService {
 
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    @Resource
+    ExpenditureDAO expenditureDAO;
 
     @Override
-    public HashMap<String, String> KeepAccountByImageShop(byte[] imgBytes) {
-
-        HashMap<String, String> map = new HashMap<>();
-        List<String> textList = new ArrayList<>();
-        String urlCommon = "https://api.textin.com/ai/service/v2/recognize";
-
-        JSONObject jsonObject = JSON.parseObject(TextHttpUtil.postUrl(urlCommon, imgBytes))
-                .getJSONObject("result");
-
-
-        jsonObject.getJSONArray("lines").stream().forEach(line -> {
-            textList.add(JSON.parseObject(line + "").getString("text"));
-        });
-
-        String shopText = "";
-        shopText = JSON.parseObject(TextHttpUtil.postUrl("https://api.textin.com/robot/v1.0/api/receipt", imgBytes))
-                .getJSONObject("result")
-                .getJSONArray("item_list")
-                .getJSONObject(5)
-                .getString("value");
-        String[] lines = shopText.split("\n");
-        if (lines.length >= 2) {
-            shopText = lines[lines.length / 2];
-        } else if (lines.length == 1) {
-            shopText = lines[0];
+    public ResultModel<String> save(Expenditure expenditure) {
+        if(expenditure.getSubcategory()==null||expenditure.getSubcategory().length()==0){
+            expenditure.setSubcategory(defaultSub(expenditure.getCategory()));
         }
-
-        String time = JsonMsgUtil.getTime(textList);
-        String price = JsonMsgUtil.getPrice(textList);
-        String type = SocketUtil.remoteCall(shopText);
-
-        if (time.length() < 10) {
-            Date currentDate = new Date();
-            String currentDateString = dateFormat.format(currentDate);
-            time = currentDateString + " " + time;
-        }
-
-        map.put("time", time);
-        map.put("price", price);
-        map.put("type", type);
-
-        return map;
+        expenditure.setCreateAt(new Date());
+        expenditure.initBase();
+        EventBus.emit(EventBus.MsgType.EXPENDITURE_CREATE,expenditure);
+        expenditureDAO.insert(expenditure);
+        return ResultModelUtil.success("添加成功");
     }
 
     @Override
-    public HashMap<String, String> KeepAccountByImageTicket(byte[] imgBytes) {
-
-        HashMap<String, String> map = new HashMap<>();
-        String url = "https://api.textin.com/robot/v1.0/api/train_ticket";
-        JSONObject jsonObject = JSON.parseObject(JSON.parseObject(TextHttpUtil.postUrl(url, imgBytes))
-                .getString("result"));
-        String type = jsonObject.getString("type_description");
-        String price = JSON.parseObject(jsonObject.getJSONArray("item_list").getString(7))
-                .getString("value");
-        String time = JSON.parseObject(jsonObject.getJSONArray("item_list").getString(5))
-                .getString("value");
-        System.out.println(type + "  " + price + "  " + time);
-        map.put("time", time);
-        map.put("price", price);
-        map.put("type", type);
-        return map;
+    public ResultModel<String> delete(Long id) {
+        expenditureDAO.deleteById(id);
+        return ResultModelUtil.success("删除成功");
     }
 
     @Override
-    public String typeServer(byte[] imgBytes) {
-
-        String url = "https://api.textin.com/robot/v1.0/api/general_receipt_classify";
-        String type = "";
-        type = JSON.parseObject(JSON.parseObject(TextHttpUtil.postUrl(url, imgBytes))
-                        .getString("result"))
-                .getString("type");
-        return type;
+    public ResultModel<String> update(Expenditure expenditure) {
+        if(expenditure.getId()==null){
+            ResultModelUtil.fail(9900,"id为空");
+        }
+        if(expenditure.getAmount()==null){
+            expenditure.setAmount(BigDecimal.ZERO);
+        }
+        if (expenditure.getExpenditureDate()==null){
+            expenditure.setExpenditureDate(String.valueOf(LocalDate.now()));
+        }
+        if(expenditure.getComment()==null){
+            expenditure.setComment("");
+        }
+        EventBus.emit(EventBus.MsgType.EXPENDITURE_UPDATE,expenditure);
+        expenditureDAO.updateExpenditure(expenditure);
+        return ResultModelUtil.success("更新成功");
+    }
+    
+    private String defaultSub(String category){
+        String s="";
+        if(category.equals("食品餐饮")){
+            s="生鲜食品";
+        }
+        if(category.equals("购物消费")){
+            s="日用家居 ";
+        }
+        if(category.equals("出行交通")){
+            s="停车过路";
+        }
+        if(category.equals("休闲娱乐")){
+            s="旅游度假";
+        }
+        if(category.equals("服务缴费")){
+            s="水电燃气";
+        }
+        if(category.equals("学习教育")){
+            s="学费支出";
+        }
+        if(category.equals("人情往来")){
+            s="礼物红包";
+        }
+        if(category.equals("健康医疗")){
+            s="医院诊疗";
+        }
+        if(category.equals("金融理财")){
+            s="理财投资";
+        }
+        return s;
     }
 }

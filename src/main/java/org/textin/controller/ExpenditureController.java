@@ -1,17 +1,13 @@
 package org.textin.controller;
 
-import com.alibaba.fastjson2.JSON;
+
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.textin.model.entity.Expenditure;
 import org.textin.model.result.ResultModel;
 import org.textin.service.ExpenditureService;
-import org.textin.util.ResultModelUtil;
+
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
 *@program: ServerTest
@@ -20,26 +16,23 @@ import java.util.List;
 *@create: 2022-12-10 15:51
 */
 @RestController
-@RequestMapping("/keepAccounts")
+@RequestMapping("/expenditure")
 public class ExpenditureController {
-
     @Resource
-    private ExpenditureService accountService;
+    private ExpenditureService expenditureService;
 
-    @PostMapping("/image")
-    public ResultModel<String> upLoadImg(@RequestParam(value = "files", required = false) List<MultipartFile> files) throws IOException {
+    @PostMapping("/save")
+    public ResultModel<String> saveExpenditure(@RequestBody Expenditure expenditure){
+        return expenditureService.save(expenditure);
+    }
 
-        List<HashMap<String, String>> data = new ArrayList<>();
+    @PostMapping("/delete")
+    public ResultModel<String> deleteExpenditure(@RequestParam("id") Long id){
+        return expenditureService.delete(id);
+    }
 
-        for (MultipartFile file : files) {
-            byte[] imgBytes = file.getBytes();
-            if (accountService.typeServer(imgBytes).contains("ticket")){
-                data.add(accountService.KeepAccountByImageTicket(imgBytes));
-            }else {
-                data.add(accountService.KeepAccountByImageShop(imgBytes));
-            }
-        }
-
-        return ResultModelUtil.success(JSON.toJSONString(data));
+    @PostMapping("/update")
+    public ResultModel<String> updateExpenditure(@RequestBody Expenditure expenditure){
+        return expenditureService.update(expenditure);
     }
 }

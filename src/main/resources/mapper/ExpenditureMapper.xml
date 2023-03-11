@@ -23,48 +23,75 @@
     <sql id="where_clause_do" >
         <trim prefix="where" prefixOverrides="and|or" >
             is_deleted = 0
-            <if test="subcategory != null">
-                and subcategory = #{subcategory}
-            </if>
-            <if test="comment != null">
-                and comment = #{comment}
-            </if>
         </trim>
     </sql>
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="org.textin.model.entity.Expenditure">
+        insert into <include refid="tableName"/>
+        (create_at,amount,creator_id,ledger_id,category,subcategory,comment,expenditure_date)
+        values
+        (
+        #{createAt},
+        #{amount},
+        #{creatorId},
+        #{ledgerId},
+        #{category},
+        #{subcategory},
+        #{comment},
+        #{expenditureDate}
+        )
+    </insert>
+
+    <update id="deleteById">
+        update <include refid="tableName"/>
+        set is_deleted=1 where id=#{id}
+    </update>
+
+    <update id="updateExpenditure">
+        UPDATE <include refid="tableName"/>
+        SET amount = #{amount}, category = #{category}, comment = #{comment},expenditure_date=#{expenditureDate}
+        <include refid="where_clause_do"/>
+        and id=#{id}
+    </update>
 
     <select id="findById" resultType="org.textin.model.entity.Expenditure">
         select <include refid="allColumn"/>
         from <include refid="tableName"/>
-        where creator_id = #{creatorId} and ledger_id=#{ledgerId} and expenditure_date like #{expenditureDate}
+        <include refid="where_clause_do"/>
+        and creator_id = #{creatorId} and ledger_id=#{ledgerId} and expenditure_date like #{expenditureDate}
     </select>
 
     <select id="sumByDateAndId" resultType="java.lang.Double">
         SELECT SUM(amount)
         FROM <include refid="tableName"/>
-        where creator_id = #{creatorId} and ledger_id=#{ledgerId} and expenditure_date = #{expenditureDate}
+        <include refid="where_clause_do"/>
+        and creator_id = #{creatorId} and ledger_id=#{ledgerId} and expenditure_date = #{expenditureDate}
     </select>
 
     <select id="findBetweenDate" resultType="org.textin.model.entity.Expenditure">
         select <include refid="allColumn"/>
         from <include refid="tableName"/>
-        where expenditure_date BETWEEN #{startDay} and #{endDay} and creator_id = #{creatorId};
+        <include refid="where_clause_do"/>
+        and expenditure_date BETWEEN #{startDay} and #{endDay} and creator_id = #{creatorId};
     </select>
 
     <select id="sumByDateAndUserId" resultType="java.math.BigDecimal">
         SELECT SUM(amount)
         FROM <include refid="tableName"/>
-        where creator_id = #{creatorId} and expenditure_date = #{expenditureDate}
+        <include refid="where_clause_do"/>
+        and creator_id = #{creatorId} and expenditure_date = #{expenditureDate}
     </select>
 
     <select id="sumByMonth" resultType="java.math.BigDecimal">
         SELECT SUM(amount)
         FROM <include refid="tableName"/>
-        where creator_id = #{creatorId} and expenditure_date like #{expenditureDate}
+        <include refid="where_clause_do"/>
+        and creator_id = #{creatorId} and expenditure_date like #{expenditureDate}
     </select>
 
     <select id="findByIdAndMonth" resultType="org.textin.model.entity.Expenditure">
         select <include refid="allColumn"/>
         from <include refid="tableName"/>
-        where expenditure_date like #{expenditureDate} and creator_id = #{creatorId};
+        <include refid="where_clause_do"/>
+        and expenditure_date like #{expenditureDate} and creator_id = #{creatorId};
     </select>
 </mapper>

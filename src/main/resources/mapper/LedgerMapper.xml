@@ -21,18 +21,13 @@
     <sql id="where_clause_do" >
         <trim prefix="where" prefixOverrides="and|or" >
             is_deleted = 0
-            <if test="expenditure != null">
-                and expenditure = #{subcategory}
-            </if>
-            <if test="income != null">
-                and income = #{comment}
-            </if>
         </trim>
     </sql>
 
     <select id="get" resultType="org.textin.model.entity.Ledger" resultMap="resultMap">
     select <include refid="allColumn"/>
-        from ledger where id = #{id}
+        from ledger <include refid="where_clause_do"/>
+        and id = #{id}
     </select>
 
 </mapper>

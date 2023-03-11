@@ -1,6 +1,9 @@
 package org.textin.service;
 
-import java.math.BigDecimal;
+import com.alibaba.fastjson.JSONObject;
+import org.textin.model.dto.BudgetDTO;
+import org.textin.model.result.ResultModel;
+
 
 /**
  * @program: TextServer
@@ -9,5 +12,6 @@ import java.math.BigDecimal;
  * @create: 2023-03-05 10:35
  */
 public interface BudgetService {
-    BigDecimal findByIdAndDate(Long userID,String date);
+    ResultModel<JSONObject> getYearBudget(Long userID,String year);
+    ResultModel<String> update(BudgetDTO budgetDTO);
 }

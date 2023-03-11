@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  * @create: 2022-12-25 14:03
  */
 public class SocketUtil {
-    private static final String HOST="26.26.26.1";
+    private static final String HOST="127.0.0.1";
     private static final Integer PORT=12345;
     static Logger log = Logger.getLogger(String.valueOf(SocketUtil.class));
 
@@ -51,6 +51,6 @@ public class SocketUtil {
             try {if(socket!=null) socket.close();} catch (IOException e) {}
             log.info("远程接口调用结束.");
         }
-        return "其他类别";
+        return "食品餐饮";
     }
 }

@@ -20,4 +20,7 @@ public interface ExpenditureDAO {
     Double sumByDateAndId(@Param("ledgerId") Long id,@Param("creatorId") Long userID,@Param("expenditureDate") String date);
     BigDecimal sumByDateAndUserId(@Param("creatorId") Long userID, @Param("expenditureDate") String date);
     BigDecimal sumByMonth(@Param("creatorId") Long userID, @Param("expenditureDate") String date);
+    void insert(Expenditure expenditure);
+    void deleteById(Long id);
+    void updateExpenditure(Expenditure expenditure);
 }

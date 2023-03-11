@@ -23,8 +23,28 @@
     <select id="findByIdAndBudgetDate" resultType="org.textin.model.entity.Budget">
         select <include refid="allColumn"/>
             from <include refid="tableName"/>
-        where user_id=#{useId} and budget_date like  #{BudgetDate}
+        <include refid="where_clause_do"/> and user_id=#{userId} and budget_date like  #{BudgetDate}
     </select>
 
+    <select id="findYearById" resultType="org.textin.model.entity.Budget">
+        select <include refid="allColumn"/>
+            from <include refid="tableName"/>
+        <include refid="where_clause_do"/> and budget_date like #{year} and user_id=#{userId}
+    </select>
+
+    <update id="update">
+        update <include refid="tableName"/>
+        set budget = #{budget} where user_id=#{userId} and budget_date like #{date}
+    </update>
+    <insert id="insert">
+        insert into  <include refid="tableName"/>
+        (budget_date,budget,user_id)
+        values
+        (
+            #{date},
+            #{budget},
+            #{userId}
+        )
+    </insert>
 
 </mapper>

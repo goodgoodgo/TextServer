@@ -24,7 +24,7 @@ public class TransferUtil {
                     .ledgerId(expenditure.getLedgerId())
                     .subcategory(expenditure.getSubcategory())
                     .category(expenditure.getCategory())
-                    .IncomeDate(expenditure.getExpenditureDate())
+                    .incomeDate(expenditure.getExpenditureDate())
                     .build();
             income.setCreateAt(expenditure.getCreateAt());
             income.setId(expenditure.getId());

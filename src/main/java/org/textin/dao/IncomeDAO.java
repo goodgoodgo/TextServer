@@ -13,8 +13,6 @@ import java.util.List;
  * @create: 2023-02-24 10:44
  */
 public interface IncomeDAO {
-    void insert(Income income);
-    void update(Income income);
     List<Income> findById(@Param("ledgerId") Long ledgerId,@Param("creatorId") Long creatorId,@Param("incomeDate") String date);
 
     /**
@@ -49,6 +47,7 @@ public interface IncomeDAO {
      * @return
      */
     List<Income> findBetweenDate(@Param("creatorId") Long id,@Param("startDay") String startDay,@Param("endDay")String endDay);
-
-
+    void insert(Income income);
+    void deleteById(Long id);
+    void updateIncome(Income income);
 }

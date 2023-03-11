@@ -49,18 +49,17 @@ public class LedgerServiceImpl implements LedgerService {
         }
         String date=year+"-"+month+"%";
         BigDecimal budget=BigDecimal.ZERO;
-        if(null!=budgetDAO.findByIdAndBudgetDate(userID,date)){
+        if(null!=budgetDAO.findYearById(userID,date)){
             budget = budgetDAO.findByIdAndBudgetDate(userID,date).getBudget();
         }
 
         CheckUtil.isEmpty(ledgerDAO.get(userID), ErrorCodeEn.LEDGER_EMPTY);
         List<Income> incomes=incomeDAO.findById(id,userID,date);
         List<Expenditure> expenditures=expenditureDAO.findById(id,userID,date);
-        incomes.addAll(TransferUtil.toIncome(expenditures));
 
+        incomes.addAll(TransferUtil.toIncome(expenditures));
         BigDecimal totalIncome=incomeSum(incomes,true);
         BigDecimal totalExpenditure=incomeSum(incomes,false);
-
 
         Comparator<Income> incomeComparator = Comparator.comparing(Income::getCreateAt).reversed();
         incomes.sort(incomeComparator);

@@ -1,9 +1,8 @@
 package org.textin.controller;
 
-import com.alibaba.fastjson.JSON;
 import org.springframework.web.bind.annotation.*;
-import org.textin.annotation.IsLogin;
 import org.textin.model.entity.Income;
+import org.textin.model.result.ResultModel;
 import org.textin.service.IncomeService;
 
 import javax.annotation.Resource;
@@ -22,8 +21,17 @@ public class IncomeController {
     private IncomeService incomeService;
 
     @PostMapping("/save")
-    public String saveIncome(@RequestBody Income income){
+    public ResultModel<String> saveIncome(@RequestBody Income income){
         return incomeService.save(income);
     }
 
+    @PostMapping("/delete")
+    public ResultModel<String> deleteIncome(@RequestParam("id") Long id){
+        return incomeService.delete(id);
+    }
+
+    @PostMapping("/update")
+    public ResultModel<String> updateIncome(@RequestBody Income income){
+        return incomeService.update(income);
+    }
 }

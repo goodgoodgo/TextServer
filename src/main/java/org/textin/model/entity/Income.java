@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * @program: TextServer
@@ -50,7 +49,6 @@ public class Income extends BaseEntity{
      */
     private Long ledgerId;
 
-    private String IncomeDate;
-
+    private String incomeDate;
 
 }

@@ -1,8 +1,6 @@
 package org.textin.service.Impl;
 
-import com.alibaba.fastjson.JSON;
 import org.springframework.stereotype.Service;
-import org.textin.annotation.IsLogin;
 import org.textin.dao.IncomeDAO;
 import org.textin.model.entity.Income;
 import org.textin.model.result.ResultModel;
@@ -11,6 +9,8 @@ import org.textin.util.EventBus;
 import org.textin.util.ResultModelUtil;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -27,24 +27,39 @@ public class IncomeServiceImpl implements IncomeService {
     private IncomeDAO incomeDao;
 
 
-    @IsLogin
     @Override
-    public String save(Income income) {
+    public ResultModel<String> save(Income income) {
         income.setCreateAt(new Date());
         income.initBase();
         incomeDao.insert(income);
         EventBus.emit(EventBus.MsgType.INCOME_CREATE,income);
-        return JSON.toJSONString(ResultModelUtil.success());
+        return ResultModelUtil.success();
     }
 
-    @IsLogin
+
     @Override
-    public ResultModel<Boolean> delete(Income income) {
-        return null;
+    public ResultModel<String> delete(Long id) {
+        incomeDao.deleteById(id);
+        return ResultModelUtil.success("删除成功");
     }
 
     @Override
-    public ResultModel<String> findIncomeByDate(Date date) {
-        return null;
+    public ResultModel<String> update(Income income) {
+        if(income.getId()==null){
+            ResultModelUtil.fail(9900,"id为空");
+        }
+        if(income.getAmount()==null){
+            income.setAmount(BigDecimal.ZERO);
+        }
+        if (income.getIncomeDate()==null){
+            income.setIncomeDate(String.valueOf(LocalDate.now()));
+        }
+        if(income.getComment()==null){
+            income.setComment("");
+        }
+        EventBus.emit(EventBus.MsgType.INCOME_UPDATE,income);
+        incomeDao.updateIncome(income);
+        return ResultModelUtil.success("更新成功");
     }
+
 }
