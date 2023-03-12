@@ -10,6 +10,8 @@ import org.textin.model.result.ResultModel;
 import org.textin.service.AccountService;
 import org.textin.service.ExpenditureService;
 import org.textin.util.ResultModelUtil;
+import org.textin.util.ToWavUtil;
+import ws.schild.jave.EncoderException;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -44,5 +46,11 @@ public class AccountController {
             }
         }
         return ResultModelUtil.success(result);
+    }
+
+    @PostMapping("wav")
+    public ResultModel<JSONObject> upLoadWAV(@RequestParam(value = "file", required = false) MultipartFile file) throws IOException, EncoderException {
+        byte[] bytes=file.getBytes();
+        return accountService.keepAccountByWAV(ToWavUtil.convertToWAVAndToBytes(bytes));
     }
 }

@@ -5,13 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson2.JSON;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.textin.dao.BudgetDAO;
-import org.textin.dao.ExpenditureDAO;
-import org.textin.dao.IncomeDAO;
-import org.textin.dao.UserDAO;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.textin.dao.*;
 import org.textin.model.entity.Budget;
 import org.textin.model.entity.Expenditure;
 import org.textin.model.entity.Income;
+import org.textin.model.entity.Ledger;
 import org.textin.model.vo.*;
 import org.textin.service.BudgetService;
 import org.textin.util.ResultModelUtil;
@@ -48,12 +47,21 @@ public class STest {
     private BudgetService budgetService;
     @Resource
     private BudgetDAO budgetDAO;
+    @Resource
+    StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private LedgerDAO ledgerDAO;
+
     @Test
     void testString() throws FileNotFoundException {
-        System.out.println(budgetDAO.findByIdAndBudgetDate(1l,"2022-01%"));
-    }
-
-    public static void main(String[] args) throws IOException {
-
+        List<Ledger> ledgers = ledgerDAO.get(1l);
+        List<LedgerVO> ledgerVOS=new ArrayList<>();
+        ledgers.forEach(ledger ->{
+            ledgerVOS.add(LedgerVO.builder()
+                    .id(ledger.getId())
+                    .name(ledger.getName())
+                    .build());
+        });
+        System.out.println(ledgerVOS);
     }
 }

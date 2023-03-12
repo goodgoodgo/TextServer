@@ -12,6 +12,7 @@ import org.textin.model.enums.ErrorCodeEn;
 import org.textin.model.enums.UserSexEn;
 import org.textin.model.dto.UserDTO;
 import org.textin.model.result.ResultModel;
+import org.textin.model.vo.UserVO;
 import org.textin.service.CacheService;
 import org.textin.service.UserService;
 import org.textin.util.*;
@@ -48,9 +49,15 @@ public class UserServiceImpl implements UserService {
     private static final Long USER_LOGIN_TOKEN_EXPIRE_TIMEOUT = 60 * 60 * 24 * 7L;
 
     @Override
-    public ResultModel<User> get(Long id) {
-        User user= userDao.findById(id);
-        return ResultModelUtil.success(user);
+    public ResultModel<UserVO> get(String token) {
+        String email = (String) stringRedisTemplate.opsForHash().get("login:token:"+token,"email");
+        User user=userDao.findUserByEmail(email);
+        UserVO userVO=UserVO.builder()
+                .userName(user.getUsername())
+                .userId(user.getId())
+                .email(user.getEmail())
+                .build();
+        return ResultModelUtil.success(userVO);
     }
 
     @Override
@@ -80,7 +87,7 @@ public class UserServiceImpl implements UserService {
             String token = StringUtil.generateUUID();
             Map<String,Object> userMap=BeanUtil.beanToMap(userDTO);
             stringRedisTemplate.opsForHash().putAll(LOGIN_USER_KEY+token,userMap);
-            stringRedisTemplate.expire(LOGIN_USER_KEY+token,LOGIN_USER_TTL,TimeUnit.DAYS);
+            stringRedisTemplate.expire(LOGIN_USER_KEY+token,LOGIN_USER_TTL,TimeUnit.HOURS);
             cacheLoginUser(token, user);
             return ResultModelUtil.success(token);
         }else {
@@ -111,7 +118,7 @@ public class UserServiceImpl implements UserService {
         String token = StringUtil.generateUUID();
         Map<String,Object> userMap=BeanUtil.beanToMap(userDTO);
         stringRedisTemplate.opsForHash().putAll(LOGIN_USER_KEY+token,userMap);
-        stringRedisTemplate.expire(LOGIN_USER_KEY+token,LOGIN_USER_TTL,TimeUnit.DAYS);
+        stringRedisTemplate.expire(LOGIN_USER_KEY+token,LOGIN_USER_TTL,TimeUnit.HOURS);
         cacheLoginUser(token, user);
         EventBus.emit(EventBus.MsgType.USER_REGISTER,user);
         return ResultModelUtil.success(token);

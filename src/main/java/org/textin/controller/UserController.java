@@ -1,13 +1,10 @@
 package org.textin.controller;
 
-import com.alibaba.fastjson.JSON;
 import org.springframework.web.bind.annotation.*;
 import org.textin.model.dto.UserDTO;
-import org.textin.model.entity.User;
 import org.textin.model.result.ResultModel;
+import org.textin.model.vo.UserVO;
 import org.textin.service.UserService;
-import org.textin.util.ResultModelUtil;
-import org.textin.util.UserHolder;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -42,9 +39,9 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResultModel<UserDTO> me(){
-        return ResultModelUtil.success(UserHolder.getUser());
+    public ResultModel<UserVO> me(HttpServletRequest httpRequest){
+        String token = httpRequest.getHeader("authorization");
+        return userService.get(token);
     }
-
 
 }

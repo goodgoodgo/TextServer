@@ -43,7 +43,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         UserDTO userDTO=BeanUtil.fillBeanWithMap(userMap,new UserDTO(),false);
         userDTO.setPassword("");
         UserHolder.saveUser(userDTO);
-        stringRedisTemplate.expire(key,Constant.LOGIN_USER_TTL, TimeUnit.DAYS);
+        stringRedisTemplate.expire(key,Constant.LOGIN_USER_TTL, TimeUnit.HOURS);
         return true;
     }
 

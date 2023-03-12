@@ -3,16 +3,22 @@ package org.textin.service.Impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.seg.common.Term;
+import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import org.springframework.stereotype.Service;
+import org.textin.model.result.ResultModel;
 import org.textin.service.AccountService;
-import org.textin.util.SocketUtil;
-import org.textin.util.TextHttpUtil;
+import org.textin.util.*;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @program: TextServer
@@ -100,5 +106,131 @@ public class AccountServiceImpl implements AccountService {
                         .getString("result"))
                 .getString("type");
         return type;
+    }
+
+    @Override
+    public ResultModel<JSONObject> keepAccountByWAV(byte[] bytes) {
+        String text="";
+        try {
+            text= RecognitionUtil.speechRecognition(bytes);
+        } catch (TencentCloudSDKException e) {
+            throw new RuntimeException(e);
+        }
+        text = text.replace("两", "二");
+        text= ChineseNumberConverterUtil.ChineseNumberReplace(text);
+        String name="";
+        List<Term> termList = HanLP.segment(text);
+        String month = "";
+        String day = "";
+        String matchValue="";
+        String date="";
+        Double matchedValue=0.00;
+        List<String> valueList = new ArrayList<>();
+        String regex = "(\\d+块\\d+毛\\d+|\\d+块\\d+毛|\\d+元\\d+角\\d+分|\\d+元\\d+角|\\d+元|\\d+块)(\\d+毛\\d+|\\d+毛|\\d+分)?";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            matchValue = matcher.group();
+            matchedValue = convertToDouble(matchValue);
+            break;
+        }
+        for (int i = 0; i < termList.size() - 1; i++) {
+            Term currentTerm = termList.get(i);
+            Term nextTerm = termList.get(i + 1);
+            if (currentTerm.nature.startsWith("m") && nextTerm.nature.startsWith("q")) {
+                String qValue = nextTerm.word;
+                if (qValue.equals("月")) {
+                    month = String.valueOf(currentTerm.word);
+                } else if (qValue.equals("号")||qValue.equals("日")) {
+                    day = String.valueOf(currentTerm.word);
+                }
+            }
+        }
+        String lastM="";
+        for (Term term : termList) {
+            if (String.valueOf(term.nature).equals("m")){
+                lastM=term.word;
+            }
+        }
+        if(!lastM.equals("")){
+            valueList.add(lastM);
+        }
+        if(matchValue.equals("")){
+            matchValue=lastM;
+        }
+        for (Term term : termList) {
+            if (String.valueOf(term.nature).equals("n")){
+                name=term.word;
+            }
+        }
+        for (Term term : termList) {
+            if (String.valueOf(term.nature).equals("v")&&name.equals("")){
+                name=term.word;
+                break;
+            }
+        }
+        if(text.contains("今天")){
+            date= LocalDate.now().toString();
+        }else if(text.contains("昨天")){
+            date=LocalDate.now().minusDays(1).toString();
+        }else if(text.contains("前天")){
+            date=LocalDate.now().minusDays(2).toString();
+        }else if(!month.equals("")&&!day.equals("")){
+            if(day.length()<2){
+                day="0"+day;
+            }
+            if (month.length()<2){
+                month="0"+month;
+            }
+            date=LocalDate.now().getYear()+"-"+month+"-"+day;
+        }else {
+            date=LocalDate.now().toString();
+        }
+        JSONObject jsonObject=new JSONObject();
+        jsonObject.put("amount",String.format("%.2f", matchedValue));
+        jsonObject.put("comment",name);
+        String mostFrequentType=SocketUtil.remoteCall(name);
+        jsonObject.put("category",mostFrequentType.split("、")[0]);
+        if(mostFrequentType.split("、").length>=2){
+            jsonObject.put("subcategory",mostFrequentType.split("、")[1]);
+        }
+        else {
+            jsonObject.put("subcategory","");
+        }
+        jsonObject.put("expenditureDate",date);
+        return ResultModelUtil.success(jsonObject);
+    }
+
+    public static Double convertToDouble(String text) {
+        Double result = 0.0;
+        Pattern pattern = Pattern.compile("(\\d+元)?(\\d+角)?(\\d+分)?(\\d+块)?(\\d+毛)?(\\d+)?");
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            String yuan = matcher.group(1);
+            if (yuan != null) {
+                result += Double.parseDouble(yuan.replace("元", ""));
+            }
+            String jiao = matcher.group(2);
+            if (jiao != null) {
+                result += Double.parseDouble(jiao.replace("角", "")) / 10;
+            }
+            String fen = matcher.group(3);
+            if (fen != null) {
+                result += Double.parseDouble(fen.replace("分", "")) / 100;
+            }
+            String kuai = matcher.group(4);
+            if (kuai != null) {
+                result += Double.parseDouble(kuai.replace("块", ""));
+            }
+            String mao = matcher.group(5);
+            if (mao != null) {
+                result += Double.parseDouble(mao.replace("毛", "")) / 10;
+            }
+            String ling = matcher.group(6);
+            if (ling != null) {
+                result += Double.parseDouble(ling) / 100;
+            }
+        }
+        return result;
     }
 }

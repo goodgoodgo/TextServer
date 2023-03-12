@@ -2,11 +2,16 @@ package org.textin.controller;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.web.bind.annotation.*;
+import org.textin.model.dto.LedgerDTO;
+import org.textin.model.entity.Ledger;
 import org.textin.model.result.ResultModel;
+import org.textin.model.vo.LedgerVO;
 import org.textin.service.LedgerService;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @program: TextServer
@@ -41,5 +46,24 @@ public class LedgerController {
     private ResultModel<JSONObject> getMonthBillPage(@RequestParam("userId") Long userId,
                                                      @RequestParam("year") String year,@RequestParam("month") String month){
         return ledgerService.getMonthBill(userId,year,month);
+    }
+
+    @GetMapping("userLedgers")
+    private ResultModel<List<LedgerVO>> getUserLedger(@RequestParam("userId") Long userId){
+        return ledgerService.getUserLedger(userId);
+    }
+
+    @PostMapping("delete")
+    private ResultModel<String> deleteLedger(@RequestParam("userId") Long userId,@RequestParam("ledgerId") Long ledgerId){
+        return ledgerService.deleteLedger(userId,ledgerId);
+    }
+    @PostMapping("update")
+    private ResultModel<String> updateLedger(@RequestBody Ledger ledger){
+        return ledgerService.updateLedger(ledger);
+    }
+
+    @PostMapping("save")
+    private ResultModel<String> saveLedger(@RequestBody LedgerDTO ledgerDTO){
+        return ledgerService.saveLedger(ledgerDTO);
     }
 }

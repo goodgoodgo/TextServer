@@ -4,16 +4,15 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.stereotype.Service;
 import org.textin.dao.*;
+import org.textin.model.dto.LedgerDTO;
 import org.textin.model.entity.Expenditure;
 import org.textin.model.entity.Income;
+import org.textin.model.entity.Ledger;
 import org.textin.model.enums.ErrorCodeEn;
 import org.textin.model.result.ResultModel;
 import org.textin.model.vo.*;
 import org.textin.service.LedgerService;
-import org.textin.util.CheckUtil;
-import org.textin.util.ResultModelUtil;
-import org.textin.util.TransferUtil;
-import org.textin.util.UserHolder;
+import org.textin.util.*;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -246,6 +245,43 @@ public class LedgerServiceImpl implements LedgerService {
         jsonObject.put("totalExpenditure",totalExpenditure);
         jsonObject.put("dayData",billDayVOS);
         return ResultModelUtil.success(jsonObject);
+    }
+
+    @Override
+    public ResultModel<List<LedgerVO>> getUserLedger(Long userId) {
+        List<Ledger> ledgers = ledgerDAO.get(userId);
+        List<LedgerVO> ledgerVOS=new ArrayList<>();
+        ledgers.forEach(ledger ->{
+            ledgerVOS.add(LedgerVO.builder()
+                    .id(ledger.getId())
+                    .name(ledger.getName())
+                    .build());
+        });
+        return ResultModelUtil.success(ledgerVOS);
+    }
+
+    @Override
+    public ResultModel<String> deleteLedger(Long userId, Long ledgerId) {
+        ledgerDAO.delete(userId,ledgerId);
+        return ResultModelUtil.success("删除成功");
+    }
+
+    @Override
+    public ResultModel<String> updateLedger(Ledger ledger) {
+        ledgerDAO.update(ledger.getUserId(),ledger.getId(),ledger.getName());
+        return ResultModelUtil.success("更新成功");
+    }
+
+    @Override
+    public ResultModel<String> saveLedger(LedgerDTO ledgerDTO) {
+        Ledger ledger=Ledger.builder()
+                .userId(ledgerDTO.getUserId())
+                .name(ledgerDTO.getName())
+                .build();
+        ledger.setCreateAt(new Date());
+        ledger.initBase();
+        ledgerDAO.save(ledger);
+        return ResultModelUtil.success("保存成功");
     }
 
     private JSONObject getJsonInfo(Long userID,String startDate,String endDate){

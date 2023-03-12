@@ -10,12 +10,11 @@
         <id column="update_at" property="updateAt"/>
 
         <result column="name" property="name"/>
-        <result column="expenditure" property="expenditure"/>
-        <result column="income" property="income"/>
         <result column="user_id" property="userId"/>
 
     </resultMap>
-    <sql id="allColumn">id, is_deleted, create_at, update_at,name,expenditure,income,user_id</sql>
+    <sql id="allColumn">id, is_deleted, create_at, update_at,name,user_id</sql>
+    <sql id="selectColumn">id,name</sql>
     <sql id="tableName">ledger</sql>
 
     <sql id="where_clause_do" >
@@ -23,11 +22,36 @@
             is_deleted = 0
         </trim>
     </sql>
+    <insert id="save" parameterType="org.textin.model.entity.Ledger">
+        insert into <include refid="tableName"/>
+        (create_at,id,name,user_id)
+        values
+        (
+        #{createAt},
+        #{id},
+        #{name},
+        #{userId}
+        )
+    </insert>
+    <update id="delete">
+        update ledger set is_deleted = 1
+        <include refid="where_clause_do"/> and id=#{ledgerId} and user_id=#{userId}
+    </update>
+    <update id="update" >
+        update ledger set name=#{name}
+        <include refid="where_clause_do"/> and id=#{ledgerId} and user_id=#{userId}
+    </update>
+
+    <!--<update id="updateTop">
+        update ledger set top =0
+        <include refid="where_clause_do"/> and id!=#{ledgerId} and user_id=#{userId}
+    </update>-->
 
     <select id="get" resultType="org.textin.model.entity.Ledger" resultMap="resultMap">
+
     select <include refid="allColumn"/>
         from ledger <include refid="where_clause_do"/>
-        and id = #{id}
+        and user_id = #{userId}
     </select>
 
 </mapper>

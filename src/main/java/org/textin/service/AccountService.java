@@ -1,6 +1,7 @@
 package org.textin.service;
 
 import com.alibaba.fastjson.JSONObject;
+import org.textin.model.result.ResultModel;
 
 /**
  * @program: TextServer
@@ -28,4 +29,11 @@ public interface AccountService {
      * @return
      */
     String typeServer(byte[] imgBytes);
+
+    /**
+     * wav语音识别
+     * @param bytes
+     * @return
+     */
+    ResultModel<JSONObject> keepAccountByWAV(byte[] bytes);
 }

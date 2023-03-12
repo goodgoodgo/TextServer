@@ -1,27 +1,22 @@
-package org.textin.model.entity;
+package org.textin.model.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 /**
  * @program: TextServer
  * @description:
  * @author: ma
- * @create: 2023-02-24 09:53
+ * @create: 2023-03-12 09:34
  */
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class Ledger extends BaseEntity{
-
-
+public class LedgerVO {
     private String name;
-
-    private Long userId;
-
+    private String top;
+    private Long id;
 }
