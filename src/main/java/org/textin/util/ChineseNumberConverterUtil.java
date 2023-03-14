@@ -42,31 +42,34 @@ public class ChineseNumberConverterUtil {
         return text;
     }
 
+
     private static int chineseToArabic(String chineseNumber) {
         int result = 0;
-        int temp = 1;
+        int temp = 0;
         int num = 0;
         for (int i = 0; i < chineseNumber.length(); i++) {
             char c = chineseNumber.charAt(i);
             int n = NUMBER_MAP.get(c);
             if (n >= 10) {
-                if (temp == 1) {
+                if (temp == 0) {
                     temp = n;
                 } else {
                     num += temp * n;
-                    temp = 1;
+                    temp = 0;
                 }
             } else {
                 temp = n;
                 if (i == chineseNumber.length() - 1 || NUMBER_MAP.get(chineseNumber.charAt(i + 1)) < 10) {
                     num += temp;
-                    temp = 1;
+                    temp = 0;
                 }
             }
         }
-        result += num * temp;
+        result += num + temp;
         return result;
     }
+
+
 
     public static String ChineseNumberReplace(String text) {
         text = text.replace("两", "二");

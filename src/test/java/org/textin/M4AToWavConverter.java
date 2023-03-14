@@ -11,8 +11,8 @@ import java.util.List;
 
 public class M4AToWavConverter {
     public static void main(String[] args) throws Exception {
-        String inputPath = "src/main/resources/m4a/3.m4a";
-        String outputPath = "src/main/resources/m4a/3.wav";
+        String inputPath = "src/main/resources/m4a/4.m4a";
+        String outputPath = "src/main/resources/m4a/4.wav";
 
         AudioAttributes audioAttrs = new AudioAttributes();
         audioAttrs.setCodec("pcm_s16le");

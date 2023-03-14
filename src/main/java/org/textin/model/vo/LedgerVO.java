@@ -17,6 +17,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class LedgerVO {
     private String name;
-    private String top;
     private Long id;
 }

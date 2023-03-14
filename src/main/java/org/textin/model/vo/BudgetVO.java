@@ -18,8 +18,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BudgetVO {
-    private String date;
+    private Integer date;
     private BigDecimal balance;
     private BigDecimal budget;
     private BigDecimal expenditure;
+    private String proportion;
 }

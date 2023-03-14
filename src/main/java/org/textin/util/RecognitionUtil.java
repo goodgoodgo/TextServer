@@ -25,7 +25,7 @@ public class RecognitionUtil {
         req.setVoiceFormat("wav");
         req.setData(audioBase64);
         req.setSourceType(1L);
-        Credential cred = new Credential();
+        Credential cred = new Credential("AKIDnSwEI7oJbfU6UcV9amkU1LPGtJbfT5Td", "xe7PTIuJTN3VihRzJODoDOL3ZsypSr2y");
         AsrClient client = new AsrClient(cred, "ap-shanghai");
         SentenceRecognitionResponse resp = client.SentenceRecognition(req);
         return resp.getResult();

@@ -2,16 +2,21 @@ package org.textin.service.Impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.textin.dao.BudgetDAO;
+import org.textin.dao.LedgerDAO;
 import org.textin.dao.UserDAO;
+import org.textin.model.entity.Ledger;
 import org.textin.model.entity.User;
 import org.textin.model.enums.CacheBizTypeEn;
 import org.textin.model.enums.ErrorCodeEn;
 import org.textin.model.enums.UserSexEn;
 import org.textin.model.dto.UserDTO;
 import org.textin.model.result.ResultModel;
+import org.textin.model.vo.LedgerVO;
 import org.textin.model.vo.UserVO;
 import org.textin.service.CacheService;
 import org.textin.service.UserService;
@@ -19,7 +24,11 @@ import org.textin.util.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -36,10 +45,12 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     private UserDAO userDao;
-
     @Resource
     private CacheService cacheService;
-
+    @Resource
+    private LedgerDAO ledgerDAO;
+    @Resource
+    private BudgetDAO budgetDAO;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
@@ -49,15 +60,29 @@ public class UserServiceImpl implements UserService {
     private static final Long USER_LOGIN_TOKEN_EXPIRE_TIMEOUT = 60 * 60 * 24 * 7L;
 
     @Override
-    public ResultModel<UserVO> get(String token) {
+    public ResultModel<JSONObject> get(String token) {
         String email = (String) stringRedisTemplate.opsForHash().get("login:token:"+token,"email");
         User user=userDao.findUserByEmail(email);
+        if(user==null){
+            return ResultModelUtil.fail(400,"token过期或错误");
+        }
         UserVO userVO=UserVO.builder()
                 .userName(user.getUsername())
                 .userId(user.getId())
                 .email(user.getEmail())
                 .build();
-        return ResultModelUtil.success(userVO);
+        List<Ledger> ledgers = ledgerDAO.get(user.getId());
+        List<LedgerVO> ledgerVOS=new ArrayList<>();
+        ledgers.forEach(ledger ->{
+            ledgerVOS.add(LedgerVO.builder()
+                    .id(ledger.getId())
+                    .name(ledger.getName())
+                    .build());
+        });
+        JSONObject jsonObject=new JSONObject();
+        jsonObject.put("userInfo",userVO);
+        jsonObject.put("ledgerInfo",ledgerVOS);
+        return ResultModelUtil.success(jsonObject);
     }
 
     @Override
@@ -77,7 +102,7 @@ public class UserServiceImpl implements UserService {
         User user=userDao.findUserByEmail(loginForm.getEmail());
         UserDTO userDTO = BeanUtil.copyProperties(user,UserDTO.class);
         if (!StringUtil.md5UserPassword(loginForm.getPassword()).equals(user.getPassword())){
-            return ResultModelUtil.success("密码错误");
+            return ResultModelUtil.fail(401,"密码错误");
         }
         Map<Object, Object> oldUserMap = stringRedisTemplate.opsForHash().entries(key);
         UserHolder.saveUser(userDTO);
@@ -114,6 +139,17 @@ public class UserServiceImpl implements UserService {
                 .build();
         user.setCreateAt(new Date());
         userDao.insert(user);
+        //创建对应12个月预算
+        String month ;
+        for (int i = 1; i <= 12; i++) {
+            if(i<10){
+                month="0"+i;
+            }else {
+                month= String.valueOf(i);
+            }
+            budgetDAO.insert(userDao.findUserByEmail(registerForm.getEmail()).getId(),
+                    LocalDate.now().getYear()+"-"+month+"-01", BigDecimal.ZERO);
+        }
         UserDTO userDTO = BeanUtil.copyProperties(user,UserDTO.class);
         String token = StringUtil.generateUUID();
         Map<String,Object> userMap=BeanUtil.beanToMap(userDTO);

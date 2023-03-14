@@ -39,6 +39,7 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
         if (userMap.isEmpty()) {
             return true;
         }
+        System.out.println("12345");
         // 5.将查询到的hash数据转为UserDTO
         UserDTO userDTO = BeanUtil.fillBeanWithMap(userMap, new UserDTO(), false);
         // 6.存在，保存用户信息到 ThreadLocal

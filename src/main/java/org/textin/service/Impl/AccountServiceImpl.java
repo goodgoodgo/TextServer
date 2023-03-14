@@ -11,12 +11,10 @@ import org.textin.model.result.ResultModel;
 import org.textin.service.AccountService;
 import org.textin.util.*;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,7 +63,7 @@ public class AccountServiceImpl implements AccountService {
                 }
             }
         }else {
-            mostFrequentType="食品餐饮1";
+            mostFrequentType="食品餐饮";
         }
         result.put("category",mostFrequentType.split("、")[0]);
         if(mostFrequentType.split("、").length>=2){
@@ -82,8 +80,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public JSONObject KeepAccountByImageTicket(byte[] imgBytes) {
-
-        JSONObject result=new JSONObject();
         String url = "https://api.textin.com/robot/v1.0/api/train_ticket";
         JSONObject jsonObject = JSON.parseObject(JSON.parseObject(TextHttpUtil.postUrl(url, imgBytes))
                 .getString("result"));
@@ -91,9 +87,54 @@ public class AccountServiceImpl implements AccountService {
                 .getString("value");
         String time = JSON.parseObject(jsonObject.getJSONArray("item_list").getString(5))
                 .getString("value");
-        result.put("expenditureDate", time);
-        result.put("amount", "-"+price);
-        result.put("category", "交通出行");
+        JSONObject result=getObject("火车票",price,time,"公共交通");
+        return result;
+    }
+
+    @Override
+    public JSONObject keepAccountByImageBill(byte[] imgBytes) {
+        JSONArray jsonArray=getArray(imgBytes);
+        String price=JSON.parseObject(jsonArray.getString(5)).getString("value");
+        String dateValue=JSON.parseObject(jsonArray.getString(6)).getString("value");
+        String[] split = dateValue.split(".");
+        String month="";
+        String day="";
+        String date="";
+        if(split.length>=3){
+            if(split[1].length()<2){
+                month="0"+split[1];
+            }
+            if(split[2].length()<2){
+                day="0"+split[2];
+            }
+            date=split[0]+"-"+month+"-"+day;
+        }else {
+            date=LocalDate.now().toString();
+        }
+        JSONObject result=getObject("船运客票",price,date,"公共交通");
+        return result;
+    }
+
+    @Override
+    public JSONObject keepAccountByImageTaxi(byte[] imgBytes) {
+        JSONArray jsonArray=getArray(imgBytes);
+        String price=JSON.parseObject(jsonArray.getString(7)).getString("value");
+        String dateValue=JSON.parseObject(jsonArray.getString(2)).getString("value");
+        String date="";
+        Date dateD;
+        if(!dateValue.equals("")){
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy年MM月dd日");
+            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                 dateD = inputFormat.parse(dateValue);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            date = outputFormat.format(dateD);
+        }else {
+            date= String.valueOf(LocalDate.now());
+        }
+        JSONObject result=getObject("出租车发票",price,date,"交通出行");
         return result;
     }
 
@@ -126,13 +167,17 @@ public class AccountServiceImpl implements AccountService {
         String date="";
         Double matchedValue=0.00;
         List<String> valueList = new ArrayList<>();
-        String regex = "(\\d+块\\d+毛\\d+|\\d+块\\d+毛|\\d+元\\d+角\\d+分|\\d+元\\d+角|\\d+元|\\d+块)(\\d+毛\\d+|\\d+毛|\\d+分)?";
+        String regex = "(\\d+块\\d+毛\\d+|\\d+块\\d+毛|\\d+元\\d+角\\d+分|\\d+元\\d+角|\\d+元|\\d+块|\\d+毛\\d+|\\d+毛|\\d+分)";
+        String regex2 = "(\\d+块)(\\d+毛\\d)|(\\d+块)(\\d+毛)|(\\d+块)(\\d+角)?|(\\d+块)(\\d+毛)?|(\\d+角)";
+        regex=regex2 + "|" + regex;
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(text);
-        while (matcher.find()) {
-            matchValue = matcher.group();
-            matchedValue = convertToDouble(matchValue);
-            break;
+        if (!text.contains(".")){
+            while (matcher.find()) {
+                matchValue = matcher.group();
+                matchedValue = convertToDouble(matchValue);
+                break;
+            }
         }
         for (int i = 0; i < termList.size() - 1; i++) {
             Term currentTerm = termList.get(i);
@@ -187,7 +232,12 @@ public class AccountServiceImpl implements AccountService {
             date=LocalDate.now().toString();
         }
         JSONObject jsonObject=new JSONObject();
-        jsonObject.put("amount",String.format("%.2f", matchedValue));
+        if(matchedValue==0.00){
+            jsonObject.put("amount", matchValue);
+        }else {
+            jsonObject.put("amount",String.format("%.2f", matchedValue));
+
+        }
         jsonObject.put("comment",name);
         String mostFrequentType=SocketUtil.remoteCall(name);
         jsonObject.put("category",mostFrequentType.split("、")[0]);
@@ -200,6 +250,26 @@ public class AccountServiceImpl implements AccountService {
         jsonObject.put("expenditureDate",date);
         return ResultModelUtil.success(jsonObject);
     }
+
+    public static JSONObject getObject(String comment,String amount,String date,String sub){
+        JSONObject result=new JSONObject();
+        result.put("comment",comment);
+        result.put("amount",amount);
+        result.put("expenditureDate", date);
+        result.put("subcategory","专车打的");
+        result.put("category",sub);
+        return result;
+    }
+
+    public static JSONArray getArray(byte[] imgBytes){
+        String url="https://api.textin.com/robot/v1.0/api/bills_crop";
+        JSONObject jsonObject = JSON.parseObject(JSON.parseObject(TextHttpUtil.postUrl(url, imgBytes))
+                .getString("result"));
+        jsonObject=jsonObject.getJSONArray("object_list").getJSONObject(0);
+        JSONArray jsonArray=jsonObject.getJSONArray("item_list");
+        return jsonArray;
+    }
+
 
     public static Double convertToDouble(String text) {
         Double result = 0.0;

@@ -55,7 +55,6 @@ public class LedgerServiceImpl implements LedgerService {
         CheckUtil.isEmpty(ledgerDAO.get(userID), ErrorCodeEn.LEDGER_EMPTY);
         List<Income> incomes=incomeDAO.findById(id,userID,date);
         List<Expenditure> expenditures=expenditureDAO.findById(id,userID,date);
-
         incomes.addAll(TransferUtil.toIncome(expenditures));
         BigDecimal totalIncome=incomeSum(incomes,true);
         BigDecimal totalExpenditure=incomeSum(incomes,false);
@@ -116,8 +115,8 @@ public class LedgerServiceImpl implements LedgerService {
         String startDate;
         JSONObject jsonObject=new JSONObject();
         if(data.equals("day")){
-            startDate= String.valueOf(localDate.minusDays(7));
-            jsonObject=getJsonInfo(userId,startDate,endDate);
+            startDate= String.valueOf(localDate.minusDays(6));
+            jsonObject=getJsonInfo(userId,startDate,endDate,"day");
         }else if(data.equals("month")){
             YearMonth yearMonth = YearMonth.of(localDate.getYear(), Integer.valueOf(keyDate));
             if (keyDate.length()<2){
@@ -125,11 +124,11 @@ public class LedgerServiceImpl implements LedgerService {
             }
             startDate = localDate.getYear() + "-" +keyDate+ "-01";
             endDate = localDate.getYear()+"-"+keyDate+"-"+yearMonth.lengthOfMonth();
-            jsonObject=getJsonInfo(userId,startDate,endDate);
+            jsonObject=getJsonInfo(userId,startDate,endDate,"month");
         }else if(data.equals("year")){
             startDate = keyDate+"-01-01";
             endDate=keyDate+"-12-31";
-            jsonObject=getJsonInfo(userId,startDate,endDate);
+            jsonObject=getJsonInfo(userId,startDate,endDate,"year");
             jsonObject.remove("incomeData");
             jsonObject.remove("expenditureData");
             List<IncomeYearVO> incomeYearVO=new ArrayList<>();
@@ -137,9 +136,9 @@ public class LedgerServiceImpl implements LedgerService {
             String monthDate;
             for (int i = 1; i <= 12; i++) {
                 if(1<=9){
-                    monthDate=localDate.getYear()+"-0"+i+"%";
+                    monthDate=keyDate+"-0"+i+"%";
                 }else {
-                    monthDate=localDate.getYear()+"-"+i+"%";
+                    monthDate=keyDate+"-"+i+"%";
                 }
                 BigDecimal bigDecimal=BigDecimal.ZERO;
                 BigDecimal bigDecimalE=BigDecimal.ZERO;
@@ -167,7 +166,7 @@ public class LedgerServiceImpl implements LedgerService {
             if(Math.abs(Integer.valueOf(startDate.substring(0,4))-Integer.valueOf(endDate.substring(0,4)))>2){
                 return ResultModelUtil.fail(401,"跨度过大");
             }
-            jsonObject=getJsonInfo(userId,startDate,endDate);
+            jsonObject=getJsonInfo(userId,startDate,endDate,"def");
         }
         return ResultModelUtil.success(jsonObject);
     }
@@ -284,8 +283,7 @@ public class LedgerServiceImpl implements LedgerService {
         return ResultModelUtil.success("保存成功");
     }
 
-    private JSONObject getJsonInfo(Long userID,String startDate,String endDate){
-        userID=getUserId(userID);
+    private JSONObject getJsonInfo(Long userID,String startDate,String endDate,String flag){
         List<Income> incomes = incomeDAO.findBetweenDate(userID, startDate, endDate);
         List<Expenditure> expenditures=expenditureDAO.findBetweenDate(userID,startDate,endDate);
         List<Income> inAndExList=new ArrayList<>();
@@ -315,7 +313,12 @@ public class LedgerServiceImpl implements LedgerService {
             incomeVOS.add(incomeVO);
         }
         LocalDate currentDateObj = LocalDate.parse(endDate);
-        LocalDate startOfMonth = LocalDate.parse(startDate.substring(0,7) + "-01");
+        LocalDate startOfMonth;
+        if(flag.equals("day")){
+             startOfMonth = LocalDate.parse(startDate);
+        }else {
+             startOfMonth = LocalDate.parse(startDate.substring(0,7) + "-01");
+        }
         List<IncomeChartVO> incomeResult = new ArrayList<>();
         List<IncomeChartVO> expenditureResult = new ArrayList<>();
         for (LocalDate date = startOfMonth; !date.isAfter(currentDateObj); date = date.plusDays(1)) {

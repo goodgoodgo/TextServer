@@ -14,7 +14,7 @@ import java.util.List;
  * @create: 2023-03-03 12:22
  */
 public interface ExpenditureDAO {
-    List<Expenditure> findById(@Param("creatorId") Long id,@Param("ledgerId") Long userID,@Param("expenditureDate") String date);
+    List<Expenditure> findById(@Param("ledgerId") Long ledgerId,@Param("creatorId") Long userId,@Param("expenditureDate") String date);
     List<Expenditure> findByIdAndMonth(@Param("creatorId") Long id,@Param("expenditureDate") String date);
     List<Expenditure> findBetweenDate(@Param("creatorId") Long id, @Param("startDay") String startDay, @Param("endDay")String endDay);
     Double sumByDateAndId(@Param("ledgerId") Long id,@Param("creatorId") Long userID,@Param("expenditureDate") String date);

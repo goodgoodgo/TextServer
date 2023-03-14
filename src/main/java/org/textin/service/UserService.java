@@ -1,5 +1,6 @@
 package org.textin.service;
 
+import com.alibaba.fastjson.JSONObject;
 import org.textin.model.entity.User;
 import org.textin.model.dto.UserDTO;
 import org.textin.model.result.ResultModel;
@@ -16,7 +17,7 @@ import java.net.http.HttpRequest;
  * @create: 2023-02-26 09:21
  */
 public interface UserService {
-    ResultModel<UserVO> get(String token);
+    ResultModel<JSONObject> get(String token);
     ResultModel<String> sendCode(String email);
     ResultModel<String>  login(UserDTO loginForm, HttpServletRequest httpRequest);
     ResultModel<String>  register(UserDTO registerForm);

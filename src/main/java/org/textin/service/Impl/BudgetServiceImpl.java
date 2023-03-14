@@ -14,6 +14,7 @@ import org.textin.util.ResultModelUtil;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -38,6 +39,8 @@ public class BudgetServiceImpl implements BudgetService {
         BigDecimal totalExpenditure=BigDecimal.ZERO;
         BigDecimal totalBudget=BigDecimal.ZERO;
         String month;
+        Double eo;
+        Double bo;
         for (Budget budget : budgets){
             expenditure=BigDecimal.ZERO;
             month=String.valueOf(budget.getBudgetDate().getMonth());
@@ -50,15 +53,30 @@ public class BudgetServiceImpl implements BudgetService {
             }
             totalExpenditure=totalExpenditure.add(expenditure);
             totalBudget=totalBudget.add(budget.getBudget());
-            budgetVOS.add(BudgetVO.builder()
-                    .date(String.valueOf(budget.getBudgetDate().getMonth()+1))
+            BudgetVO budgetVO=BudgetVO.builder()
+                    .date(budget.getBudgetDate().getMonth()+1)
                     .balance(budget.getBudget().add(expenditure))
                     .budget(budget.getBudget())
                     .expenditure(expenditure)
-                    .build());
+                    .build();
+            if(budget.getBudget().compareTo(BigDecimal.ZERO)>0&&budget.getBudget().compareTo(expenditure.abs())>0){
+                eo=expenditure.doubleValue();
+                bo=budget.getBudget().doubleValue();
+                budgetVO.setProportion(String.format("%.2f",(eo+bo)/bo*100)+"%");
+            }else {
+                budgetVO.setProportion("0%");
+            }
+            budgetVOS.add(budgetVO);
         }
+        Comparator<BudgetVO> budgetVOComparator = Comparator.comparing(BudgetVO::getDate);
+        budgetVOS.sort(budgetVOComparator);
         jsonObject.put("totalBalance",totalBudget.add(totalExpenditure));
         jsonObject.put("totalBudget",totalBudget);
+        if(totalBudget.compareTo(BigDecimal.ZERO)>0&&totalBudget.compareTo(totalExpenditure.abs())>0){
+            jsonObject.put("proportion",String.format("%.2f",(totalExpenditure.doubleValue()+totalBudget.doubleValue())/totalBudget.doubleValue()*100)+"%");
+        }else {
+            jsonObject.put("proportion","0%");
+        }
         jsonObject.put("totalExpenditure",totalExpenditure);
         jsonObject.put("budgetData",budgetVOS);
         return ResultModelUtil.success(jsonObject);
@@ -72,12 +90,11 @@ public class BudgetServiceImpl implements BudgetService {
         }
         String insertDate=budgetDTO.getYear()+"-"+month+"-01";
         String date= budgetDTO.getYear()+"-"+month+"%";
-        System.out.println(date);
         //查看更新预算是否存在，不存在创建
-        if (budgetDAO.findByIdAndBudgetDate(budgetDTO.getUserId(),date)==null){
+        /*if (budgetDAO.findByIdAndBudgetDate(budgetDTO.getUserId(),date)==null){
             budgetDAO.insert(budgetDTO.getUserId(),insertDate,budgetDTO.getBudget());
             return ResultModelUtil.success("新增成功");
-        }
+        }*/
         budgetDAO.update(budgetDTO.getUserId(),date,budgetDTO.getBudget());
         return ResultModelUtil.success("更新成功");
     }

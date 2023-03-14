@@ -15,5 +15,7 @@ public class Constant {
     public static final String LOGIN_CODE_KEY = "login:code:";
     public static final Long LOGIN_CODE_TTL=4L;
     public static final String LOGIN_USER_KEY = "login:token:";
-    public static final Long LOGIN_USER_TTL=4L;
+    public static final Long LOGIN_USER_TTL=45L;
+
+    public static final String CLEAR_URI="https://api.textin.com/ai/service/v1/demoire";
 }

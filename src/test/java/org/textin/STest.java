@@ -1,31 +1,18 @@
 package org.textin;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson2.JSON;
+import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.textin.dao.*;
-import org.textin.model.entity.Budget;
-import org.textin.model.entity.Expenditure;
-import org.textin.model.entity.Income;
-import org.textin.model.entity.Ledger;
-import org.textin.model.vo.*;
 import org.textin.service.BudgetService;
-import org.textin.util.ResultModelUtil;
-import org.textin.util.SocketUtil;
-import org.textin.util.TextHttpUtil;
-import org.textin.util.TransferUtil;
+import org.textin.util.*;
 
 import javax.annotation.Resource;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Paths;
 
 
 /**
@@ -54,14 +41,11 @@ public class STest {
 
     @Test
     void testString() throws FileNotFoundException {
-        List<Ledger> ledgers = ledgerDAO.get(1l);
-        List<LedgerVO> ledgerVOS=new ArrayList<>();
-        ledgers.forEach(ledger ->{
-            ledgerVOS.add(LedgerVO.builder()
-                    .id(ledger.getId())
-                    .name(ledger.getName())
-                    .build());
-        });
-        System.out.println(ledgerVOS);
+    }
+
+    public static void main(String[] args) throws TencentCloudSDKException, IOException {
+        String audioPath = "src/main/resources/m4a/4.wav";
+        byte[] audioBytes = Files.readAllBytes(Paths.get(audioPath));
+        System.out.printf( RecognitionUtil.speechRecognition(audioBytes));
     }
 }

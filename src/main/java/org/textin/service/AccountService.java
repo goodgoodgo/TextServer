@@ -23,6 +23,16 @@ public interface AccountService {
      * @return
      */
     JSONObject KeepAccountByImageTicket(byte[] imgBytes);
+
+    /**
+     * 通用票据识别
+     * @param imgBytes
+     * @return
+     */
+    JSONObject keepAccountByImageBill(byte[] imgBytes);
+
+    JSONObject keepAccountByImageTaxi(byte[] imgBytes);
+
     /**
      * 识别小票种类
      * @param imgBytes

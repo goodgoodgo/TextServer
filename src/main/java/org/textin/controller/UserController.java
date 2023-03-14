@@ -1,9 +1,9 @@
 package org.textin.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.web.bind.annotation.*;
 import org.textin.model.dto.UserDTO;
 import org.textin.model.result.ResultModel;
-import org.textin.model.vo.UserVO;
 import org.textin.service.UserService;
 
 import javax.annotation.Resource;
@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResultModel<UserVO> me(HttpServletRequest httpRequest){
+    public ResultModel<JSONObject> me(HttpServletRequest httpRequest){
         String token = httpRequest.getHeader("authorization");
         return userService.get(token);
     }
